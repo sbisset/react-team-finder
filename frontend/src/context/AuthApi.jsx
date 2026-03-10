@@ -1,4 +1,4 @@
-const BASE_URL ='http://localhost:8000/api/'
+const BASE_URL = import.meta.env.VITE_API_URL;
 
 export const getTeamMemberships = async () => {
   const token = localStorage.getItem("access_token");
