@@ -449,6 +449,9 @@ class TeamInviteViewSet(viewsets.ModelViewSet):
         # ✅ Save invite
         serializer.save(sender=sender)
 
+
+
+   
     # -----------------------
     # ACCEPT INVITE
     # -----------------------
@@ -523,3 +526,52 @@ class DashboardViewSet(viewsets.ViewSet):
             "sent_invites": TeamInviteSerializer(sent_invites, many=True).data,
             "received_invites": TeamInviteSerializer(received_invites, many=True).data,
         })
+    
+
+    @action(detail=True, methods=["get", "patch", "delete"])
+    def my_invite(self, request, pk=None):
+
+        invite = TeamInvite.objects.get(pk=pk)
+        if request.user != invite.sender and request.user != invite.recipient:
+            return Response(
+                {"detail": "Not allowed."},
+                status=status.HTTP_403_FORBIDDEN
+        )
+        if request.method == "GET":
+            serializer = TeamInviteSerializer(invite)
+            return Response(serializer.data)
+
+        if request.method == "PATCH":
+            
+            serializer = TeamInviteSerializer(invite, data=request.data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data)
+
+        if request.method == "DELETE":
+            invite.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+
+    @action(detail=True, methods=["get", "patch", "delete"])
+    def my_app(self, request, pk=None):
+
+        app = TeamApplication.objects.get(pk=pk)
+        if request.user != app.team.owner and request.user != app.player.user:
+            return Response(
+                {"detail": "Not allowed."},
+                status=status.HTTP_403_FORBIDDEN
+        )
+        if request.method == "GET":
+            serializer = TeamApplicationSerializer(app)
+            return Response(serializer.data)
+
+        if request.method == "PATCH":
+            
+            serializer = TeamApplicationSerializer(app, data=request.data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data)
+
+        if request.method == "DELETE":
+            app.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
