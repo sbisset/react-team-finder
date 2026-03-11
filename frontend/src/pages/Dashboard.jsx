@@ -2,11 +2,12 @@ import { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { getTeamMemberships, getInvites } from "../context/AuthApi";
 import { Link, Navigate } from "react-router-dom";
+import RequestDetail from "../components/RequestDetail";
 
 const STATUS_LABELS = {
-  0: "Pending",
-  1: "Accepted",
-  2: "Rejected",
+  1: "Pending",
+  2: "Accepted",
+  3: "Rejected",
 };
 
 const Dashboard = () => {
@@ -14,6 +15,17 @@ const Dashboard = () => {
   const [teams, setTeams] = useState([]);
   const [dashboardData, setDashboardData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [inviteSeen,setInviteSeen] = useState(false); 
+ const [appSeen,setAppSeen] = useState(false);
+
+
+function inviteTogglePop(){
+    setInviteSeen(!inviteSeen);
+  };
+
+function appTogglePop(){
+    setAppSeen(!appSeen);
+  };
 
   // Load teams
   useEffect(() => {
@@ -109,7 +121,7 @@ const Dashboard = () => {
           <h2 className="text-xl font-bold mb-4">Sent</h2>
 
           <div className="mb-6">
-            <h3 className="font-semibold mb-2">Applications Sent</h3>
+            <h3 className="font-semibold mb-2">Team Applications </h3>
             {dashboardData.sent_applications.length === 0 ? (
               <p className="text-slate-400">No applications sent.</p>
             ) : (
@@ -118,13 +130,15 @@ const Dashboard = () => {
                   <p><strong>Team:</strong> {app.team} | <strong>Role:</strong> {app.role}</p>
                   <p className="text-slate-400">{app.message}</p>
                   <p className="text-xs text-slate-400">Status: {STATUS_LABELS[app.status]}</p>
+                  <button onClick={appTogglePop} className="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-md font-semibold transition">View</button>
+                  {appSeen ? <RequestDetail toggle={appTogglePop} id={app.id} request={"sent_apps"} /> : null}
                 </div>
               ))
             )}
           </div>
 
           <div>
-            <h3 className="font-semibold mb-2">Invites Sent</h3>
+            <h3 className="font-semibold mb-2">Team Invites Sent</h3>
             {dashboardData.sent_invites.length === 0 ? (
               <p className="text-slate-400">No invites sent.</p>
             ) : (
@@ -133,6 +147,8 @@ const Dashboard = () => {
                   <p><strong>Player:</strong> {inv.recipient.user.username} | <strong>Role:</strong> {inv.role}</p>
                   <p className="text-slate-400">{inv.message}</p>
                   <p className="text-xs text-slate-400">Status: {STATUS_LABELS[inv.status]}</p>
+                  <button onClick={inviteTogglePop} className="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-md font-semibold transition">View</button>
+                  {inviteSeen ? <RequestDetail toggle={inviteTogglePop} id={inv.id} request={"sent_invites"} /> : null}
                 </div>
               ))
             )}
@@ -144,16 +160,19 @@ const Dashboard = () => {
           <h2 className="text-xl font-bold mb-4">Received</h2>
 
           <div className="mb-6">
-            <h3 className="font-semibold mb-2">Applications Received</h3>
+            <h3 className="font-semibold mb-2"> Team Applications Received</h3>
             {dashboardData.received_applications.length === 0 ? (
               <p className="text-slate-400">No applications received.</p>
             ) : (
               dashboardData.received_applications.map(app => (
                 <div key={app.id} className="bg-card-dark p-3 border border-slate-700 rounded-xl mb-2">
-                  <p><strong>Player:</strong> {app.player.user.username} | <strong>Role:</strong> {app.role}</p>
-                  <p className="text-slate-400">{app.message}</p>
+                  Applied for: {app.team}
+                  <p>Application sent from:</p>
+                  <p><strong></strong> {app.player.user.username} | <strong>Role:</strong> {app.role}</p>
+                 <strong>Message:</strong>  <p className="text-slate-400">{app.message}</p>
+                 
                   <p className="text-xs text-slate-400 mb-2">Status: {STATUS_LABELS[app.status]}</p>
-                  {app.status === 0 && (
+                  {app.status === 1 && (
                     <div className="flex gap-2">
                       <button
                         className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded"
@@ -175,7 +194,7 @@ const Dashboard = () => {
           </div>
 
           <div>
-            <h3 className="font-semibold mb-2">Invites Received</h3>
+            <h3 className="font-semibold mb-2"> Team Invites </h3>
             {dashboardData.received_invites.length === 0 ? (
               <p className="text-slate-400">No invites received.</p>
             ) : (
@@ -184,7 +203,7 @@ const Dashboard = () => {
                   <p><strong>Team:</strong> {inv.team} | <strong>Role:</strong> {inv.role}</p>
                   <p className="text-slate-400">{inv.message}</p>
                   <p className="text-xs text-slate-400 mb-2">Status: {STATUS_LABELS[inv.status]}</p>
-                  {inv.status === 0 && (
+                  {inv.status === 1 && (
                     <div className="flex gap-2">
                       <button
                         className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded"
