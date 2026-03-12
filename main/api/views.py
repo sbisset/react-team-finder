@@ -528,50 +528,123 @@ class DashboardViewSet(viewsets.ViewSet):
         })
     
 
+  
+
     @action(detail=True, methods=["get", "patch", "delete"])
     def my_invite(self, request, pk=None):
 
-        invite = TeamInvite.objects.get(pk=pk)
-        if request.user != invite.sender and request.user != invite.recipient:
-            return Response(
-                {"detail": "Not allowed."},
-                status=status.HTTP_403_FORBIDDEN
-        )
+        invite = get_object_or_404(TeamInvite, pk=pk)
+
+        if request.user != invite.sender and request.user != invite.recipient.user:
+            raise PermissionDenied("Not allowed.")
+
+        # -----------------------
+        # GET
+        # -----------------------
         if request.method == "GET":
             serializer = TeamInviteSerializer(invite)
             return Response(serializer.data)
 
+        # -----------------------
+        # PATCH (edit invite)
+        # -----------------------
         if request.method == "PATCH":
-            
-            serializer = TeamInviteSerializer(invite, data=request.data, partial=True)
-            if serializer.is_valid():
-                serializer.save()
-                return Response(serializer.data)
 
+            # Only sender can edit
+            if request.user != invite.sender:
+                raise PermissionDenied("Only the sender can edit this invite.")
+
+            if invite.status != InviteStatus.PENDING:
+                raise ValidationError("Only pending invites can be edited.")
+
+            allowed_fields = {"role", "message"}
+            data = {k: v for k, v in request.data.items() if k in allowed_fields}
+
+            role = data.get("role", invite.role)
+
+            # Role already filled
+            if TeamMembership.objects.filter(team=invite.team, role=role).exists():
+                raise ValidationError(f"The role '{role}' is already filled.")
+
+            # Pending invite already for role
+            if TeamInvite.objects.filter(
+                team=invite.team,
+                role=role,
+                status=InviteStatus.PENDING
+            ).exclude(pk=invite.pk).exists():
+                raise ValidationError(
+                    f"There is already a pending invite for the role '{role}'."
+                )
+
+            serializer = TeamInviteSerializer(invite, data=data, partial=True)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+
+            return Response(serializer.data)
+
+        # -----------------------
+        # DELETE
+        # -----------------------
         if request.method == "DELETE":
+
+            # Only sender can cancel invite
+            if request.user != invite.sender:
+                raise PermissionDenied("Only the sender can cancel this invite.")
+
             invite.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
+        
 
     @action(detail=True, methods=["get", "patch", "delete"])
     def my_app(self, request, pk=None):
 
-        app = TeamApplication.objects.get(pk=pk)
-        if request.user != app.team.owner and request.user != app.player.user:
-            return Response(
-                {"detail": "Not allowed."},
-                status=status.HTTP_403_FORBIDDEN
-        )
-        if request.method == "GET":
-            serializer = TeamApplicationSerializer(app)
-            return Response(serializer.data)
+            app = get_object_or_404(TeamApplication, pk=pk)
 
-        if request.method == "PATCH":
-            
-            serializer = TeamApplicationSerializer(app, data=request.data, partial=True)
-            if serializer.is_valid():
-                serializer.save()
+            if request.user != app.player.user and request.user != app.team.owner:
+                raise PermissionDenied("Not allowed.")
+
+            # -----------------------
+            # GET
+            # -----------------------
+            if request.method == "GET":
+                serializer = TeamApplicationSerializer(app)
                 return Response(serializer.data)
 
-        if request.method == "DELETE":
-            app.delete()
-            return Response(status=status.HTTP_204_NO_CONTENT)
+            # -----------------------
+            # PATCH (edit application)
+            # -----------------------
+            if request.method == "PATCH":
+
+                # Only player can edit
+                if request.user != app.player.user:
+                    raise PermissionDenied("Only the player can edit this application.")
+
+                if app.status != InviteStatus.PENDING:
+                    raise ValidationError("Only pending applications can be edited.")
+
+                allowed_fields = {"role", "message"}
+                data = {k: v for k, v in request.data.items() if k in allowed_fields}
+
+                role = data.get("role", app.role)
+
+                # Role already filled
+                if TeamMembership.objects.filter(team=app.team, role=role).exists():
+                    raise ValidationError(f"The role '{role}' is already filled.")
+
+                serializer = TeamApplicationSerializer(app, data=data, partial=True)
+                serializer.is_valid(raise_exception=True)
+                serializer.save()
+
+                return Response(serializer.data)
+
+            # -----------------------
+            # DELETE
+            # -----------------------
+            if request.method == "DELETE":
+
+                # Player can withdraw application
+                if request.user != app.player.user:
+                    raise PermissionDenied("Only the player can withdraw this application.")
+
+                app.delete()
+                return Response(status=status.HTTP_204_NO_CONTENT)
