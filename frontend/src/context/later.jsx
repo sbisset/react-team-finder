@@ -1,18 +1,18 @@
-  const handleUpdateStatus = async (type, id, status) => {
-  try {
-    // example calls for updating apps/invs
-    if (type === "received_apps") {
-      await updateAppStatus(id, status); //  implement this
-    } else {
-      await updateInviteStatus(id, status); // implement this 
-    }
-    toast.success("Request updated successfully");
-    toggle(); // close the popup
-  } catch (err) {
-    toast.error("Failed to update request");
-  }
-};
+ // ACCEPT & INVITES FOR APPS & INVITE
+
+
+ // Dashboard styling
+
+ // Notifications - not sockets just when refreshed, click bell to go to dashboard.
+
+ // Send generic steam profile message. Keep steam profiles hidden - so players can actually add each other on steam platform
 
 
 
 
+
+
+
+
+
+// steam login. 
