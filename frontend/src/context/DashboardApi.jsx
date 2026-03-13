@@ -195,13 +195,31 @@ const user = localStorage.getItem("access_token");
 };
 
 
-export const deleteInvite = async (id) =>{
-const user = localStorage.getItem("access_token");
- // DELETE accepted/rejected 
-};
 
-export const deleteApplication = async (id)=>{
+
+export const clearInvites = async (id)=>{
 const user = localStorage.getItem("access_token");
 
- // DELETE accepted/rejected 
+ // DELETE  clear accepted/rejected 
 };
+
+
+
+
+export const leaveTeam = async (id)=>{
+  const user = localStorage.getItem("access_token");
+  const res = await fetch(`${BASE_URL}teams/${id}/leave/`, {
+      method: "POST",
+      headers: {"Content-Type": "application/json",
+                  Authorization: `Bearer ${user}`},
+    
+    });
+
+    if (!res.ok) {
+      const data = await res.json();
+      throw new Error(data.detail || "Failed to decline invite");
+    }
+
+    return true;
+
+  }
