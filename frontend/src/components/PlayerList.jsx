@@ -13,7 +13,7 @@ const PlayerList = ({ FILTERS }) => {
 
   const observer = useRef();
 
-  // 🔥 Debounce filters
+  //  Debounce filters
   useEffect(() => {
     const timeout = setTimeout(() => {
       setDebouncedFilters(FILTERS);
@@ -22,7 +22,7 @@ const PlayerList = ({ FILTERS }) => {
     return () => clearTimeout(timeout);
   }, [FILTERS]);
 
-  // 🔥 Load first page
+  //  Load first page
   const loadFirstPage = async () => {
     setLoading(true);
 
@@ -33,7 +33,7 @@ const PlayerList = ({ FILTERS }) => {
     setLoading(false);
   };
 
-  // 🔥 Load more
+  //  Load more
   const loadMore = async () => {
     if (!nextUrl || loading) return;
 
@@ -46,14 +46,14 @@ const PlayerList = ({ FILTERS }) => {
     setLoading(false);
   };
 
-  // 🔥 Reload when filters change
+  //  Reload when filters change
   useEffect(() => {
     setPlayers([]);
     setNextUrl(null);
     loadFirstPage();
   }, [debouncedFilters]);
 
-  // 🔥 Intersection observer to trigger load more
+  //  Intersection observer to trigger load more
   const lastPlayerRef = useCallback(
     node => {
       if (loading) return;

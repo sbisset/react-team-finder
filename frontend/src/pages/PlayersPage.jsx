@@ -30,7 +30,7 @@ const PlayersPage = () => {
         </p>
       </div>
 
-      {/* 🔥 Filter Bar */}
+      {/*  Filter Bar */}
       <div className="bg-[#14120e] border border-[#1f1d18] 
         rounded-xl p-5">
 

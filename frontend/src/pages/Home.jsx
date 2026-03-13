@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 const HomePage = () => {
   const [flash, setFlash] = useState(false);
 
-  // ⚡ Random lightning flash
+  //  Random lightning flash
   useEffect(() => {
     const interval = setInterval(() => {
       setFlash(true);
@@ -17,7 +17,7 @@ const HomePage = () => {
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden text-white bg-black">
 
-      {/* 🔥 Background Layer */}
+      {/*  Background Layer */}
       <div className="absolute inset-0 z-0">
 
         <img
@@ -31,7 +31,7 @@ const HomePage = () => {
 
       </div>
 
-      {/* 🔥 Hero Content */}
+      {/*  Hero Content */}
       <div className="relative z-20 text-center px-6 max-w-5xl">
         <h1 className="text-6xl md:text-8xl font-bold mb-6">
           The Battle Awaits

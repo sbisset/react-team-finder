@@ -365,6 +365,7 @@ class TeamApplicationViewSet(viewsets.ModelViewSet):
         serializer.save(player=player)
 
     def update(self, request, *args, **kwargs):
+
         application = self.get_object()
 
         if application.team.owner != request.user:
@@ -373,37 +374,52 @@ class TeamApplicationViewSet(viewsets.ModelViewSet):
         status_value = int(request.data.get("status"))
 
         if status_value == InviteStatus.ACCEPTED:
+
             with transaction.atomic():
 
-                # 1️⃣ Prevent duplicate membership
+                # Prevent player joining multiple teams
                 if TeamMembership.objects.filter(
                     player=application.player
                 ).exists():
                     return Response(
                         {"detail": "Player is already on a team."},
-                        status=400
+                        status=status.HTTP_400_BAD_REQUEST
                     )
 
-                # 2️⃣ Create membership
+                # Prevent multiple players filling same role
+                if TeamMembership.objects.filter(
+                    team=application.team,
+                    role=application.role
+                ).exists():
+                    return Response(
+                        {"detail": "This role is already filled."},
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
+
+                # Create membership
                 TeamMembership.objects.create(
                     team=application.team,
                     player=application.player,
                     role=application.role
                 )
 
-                # 3️⃣ Mark this application as accepted
+                # Mark this application accepted
                 application.status = InviteStatus.ACCEPTED
                 application.save()
 
-                # 4️⃣ Auto-reject other pending applications
+                # Reject other pending applications for same role
                 TeamApplication.objects.filter(
                     player=application.player,
+                    role=application.role,
                     status=InviteStatus.PENDING
-                ).exclude(id=application.id).update(
+                ).exclude(
+                    id=application.id
+                ).update(
                     status=InviteStatus.REJECTED
                 )
 
         elif status_value == InviteStatus.REJECTED:
+
             application.status = InviteStatus.REJECTED
             application.save()
 
@@ -490,8 +506,8 @@ class TeamInviteViewSet(viewsets.ModelViewSet):
         if invite.recipient != request.user.player:
             raise PermissionDenied("This invite is not for you.")
 
-        # Delete invite on decline
-        invite.delete()
+        invite.status = InviteStatus.REJECTED
+        invite.save()
         return Response({"detail": "Invite declined"}, status=status.HTTP_204_NO_CONTENT)
     
 

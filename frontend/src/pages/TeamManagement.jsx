@@ -53,9 +53,11 @@ const TeamManagement = () => {
 
   // 🔹 Remove member
   const handleRemove = async (membership) => {
+    console.log(membership)
     if (!membership?.player?.id) return;
 
     try {
+      console.log(team.id,membership.player.id)
       const updatedTeam = await kickMember(team.id, membership.player.id);
       setTeam(updatedTeam);
       alert("Member kicked successfully");
