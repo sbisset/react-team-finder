@@ -16,6 +16,7 @@ import MainLayout from './layouts/MainLayout';
 import Profile from './pages/Profile';
 import TeamManagement from './pages/TeamManagement';
 import { Toaster } from "react-hot-toast";
+import CreateTeam from './pages/CreateTeam';
 
 function App() {
   return (
@@ -39,7 +40,7 @@ function App() {
               <Route path="/manage/:id" element={<TeamManagement/>}/>
               <Route path="/teams" element={<TeamsPage />} />
               <Route path="/teams/:id" element={<TeamDetail />} />
-
+              <Route path="/teams/create" element={<CreateTeam/>}/>
 
               <Route path="/players" element={<PlayersPage />} />
               <Route path="/players/:id" element={<PlayerDetail />} />
