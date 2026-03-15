@@ -191,11 +191,13 @@ class TeamViewSet(viewsets.ModelViewSet):
     
 
     def get_queryset(self):
+        queryset = Team.objects.all()  # start with all teams
         
-        queryset =  Team.objects.exclude(owner=self.request.user)
+        # Only filter owner out for list (or other read-only actions)
+        if self.action == "list":
+            queryset = queryset.exclude(owner=self.request.user)
         
-        
-
+        # Apply filters
         region = self.request.query_params.get("region")
         role = self.request.query_params.get("role")
         min_mmr = self.request.query_params.get("min_mmr")
@@ -209,24 +211,18 @@ class TeamViewSet(viewsets.ModelViewSet):
             queryset = queryset.filter(region=region)
 
         if role:
-    # subquery: memberships of this team with the given role
             membership_qs = TeamMembership.objects.filter(
                 team=OuterRef('pk'),
                 role=role
             )
-            # keep teams where such membership does NOT exist
-            queryset = queryset.annotate(
-                has_role=Exists(membership_qs)
-            ).filter(has_role=False)
+            queryset = queryset.annotate(has_role=Exists(membership_qs)).filter(has_role=False)
 
         if min_mmr:
             queryset = queryset.filter(avg_mmr__gte=float(min_mmr))
-
         if max_mmr:
             queryset = queryset.filter(avg_mmr__lte=float(max_mmr))
 
         return queryset.distinct()
-
     @action(detail=True, methods=["patch"], permission_classes=[IsAuthenticated])
     def update_team(self, request, pk=None):
         team = get_object_or_404(Team, pk=pk)

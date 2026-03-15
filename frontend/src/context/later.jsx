@@ -1,7 +1,10 @@
-  // Dashboard styling & leave team. delete apps/invites to clear them out.
+  // delete apps/invites to clear them out.
+  // delete on decline?
+
+ 
   
 
- //team management design & logic - kick members. disband team
+ //team management design & logic -  disband team/delete team
 
 
 

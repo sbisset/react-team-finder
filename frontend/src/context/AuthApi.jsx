@@ -126,10 +126,12 @@ export const updateTeam = async (id,formData) => {
 
 export const kickMember = async(id,playerId) => {
     const user = localStorage.getItem('access_token');
-    const response = await fetch(`${BASE_URL}teams/${id}/kick/`,{
+    console.log(id,playerId)
+    const teamId= Number(id)
+    const response = await fetch(`${BASE_URL}teams/${teamId}/kick/`,{
         method:"POST",
         body:JSON.stringify({
-            player_id:playerId
+            player_id:Number(playerId)
         }),
         headers:{
             "Content-Type":"application/json",

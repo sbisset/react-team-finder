@@ -88,6 +88,7 @@ const TeamManagement = () => {
             <div className="flex gap-4 mt-1 text-gray-400 text-sm">
               <span>Team MMR: {team.mmr ?? "N/A"}</span>
               <span>{team.region}</span>
+              <span>{team.id}</span>
               <span>Est. {team.created_at?.slice(0, 4)}</span>
             </div>
           </div>
