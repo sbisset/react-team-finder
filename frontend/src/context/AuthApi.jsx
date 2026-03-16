@@ -240,4 +240,29 @@ export const createNewTeam = async (formData)=>{
 
   return res.json();
 
-}
+};
+
+
+
+
+export const deleteTeam = async(id)=>{
+  const user = localStorage.getItem('access_token');
+  const res = await fetch(`${BASE_URL}teams/${id}/delete_team/`, {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${user}`,
+    },
+    body: JSON.stringify(id),
+  });
+
+  if (!res.ok) {
+    const errorData = await res.json(); 
+    const error = new Error("Request failed");
+    error.response = { data: errorData, status: res.status };
+    throw error;
+  }
+
+  return res.json();
+
+};

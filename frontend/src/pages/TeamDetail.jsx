@@ -135,7 +135,7 @@ const TeamDetail = () => {
                     Open Position
                   </span>
 
-                  <button className="bg-red-600 hover:bg-red-700 text-xs px-3 py-1 rounded-md">
+                  <button onClick={togglePop} className="bg-red-600 hover:bg-red-700 text-xs px-3 py-1 rounded-md">
                     Apply
                   </button>
 

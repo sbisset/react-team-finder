@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-import { kickMember, updateTeam, getTeamManage } from "../context/AuthApi";
+import { useParams, useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
+import { kickMember, updateTeam, getTeamManage, deleteTeam } from "../context/AuthApi";
 
 const TeamManagement = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
 
   const [team, setTeam] = useState(null);
   const [formData, setFormData] = useState({
@@ -13,8 +15,11 @@ const TeamManagement = () => {
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [updating, setUpdating] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [kicking, setKicking] = useState(null); // id of member being kicked
 
-  // 🔹 Load team data
+  // 🔹 Fetch team
   const fetchTeam = async () => {
     setLoading(true);
     setError(null);
@@ -38,41 +43,61 @@ const TeamManagement = () => {
     fetchTeam();
   }, [id]);
 
-  // 🔹 Update team info
+  // 🔹 Update team
   const handleUpdate = async (e) => {
     e.preventDefault();
+    setUpdating(true);
     try {
       const updatedTeam = await updateTeam(id, formData);
-      setTeam(updatedTeam); // update UI immediately
-      alert("Team updated successfully");
+      setTeam(updatedTeam);
+      toast.success("Team updated successfully");
     } catch (err) {
       console.error(err);
-      alert("Update failed");
+      toast.error(err.response?.data?.detail || "Failed to update team");
+    } finally {
+      setUpdating(false);
     }
   };
 
   // 🔹 Remove member
   const handleRemove = async (membership) => {
-    console.log(membership)
     if (!membership?.player?.id) return;
+    if (!window.confirm(`Kick ${membership.player.user.username}?`)) return;
 
+    setKicking(membership.id);
     try {
-      console.log(team.id,membership.player.id)
       const updatedTeam = await kickMember(team.id, membership.player.id);
       setTeam(updatedTeam);
-      alert("Member kicked successfully");
+      toast.success(`${membership.player.user.username} was kicked`);
     } catch (err) {
       console.error(err);
-      alert(err.response?.data?.detail || "Failed to remove member");
+      toast.error(err.response?.data?.detail || "Failed to remove member");
+    } finally {
+      setKicking(null);
+    }
+  };
+
+  // 🔹 Delete team
+  const handleDelete = async () => {
+    if (!window.confirm("Are you sure you want to delete this team?")) return;
+
+    setDeleting(true);
+    try {
+      await deleteTeam(id);
+      toast.success("Team deleted successfully");
+      navigate("/dashboard");
+    } catch (err) {
+      console.error(err);
+      toast.error(err.response?.data?.detail || "Failed to delete team");
+    } finally {
+      setDeleting(false);
     }
   };
 
   if (loading)
     return <div className="text-white text-center py-10">Loading...</div>;
-
   if (error)
     return <div className="text-red-500 text-center py-10">{error}</div>;
-
   if (!team) return null;
 
   return (
@@ -88,13 +113,22 @@ const TeamManagement = () => {
             <div className="flex gap-4 mt-1 text-gray-400 text-sm">
               <span>Team MMR: {team.mmr ?? "N/A"}</span>
               <span>{team.region}</span>
-              <span>{team.id}</span>
+              <span>ID: {team.id}</span>
               <span>Est. {team.created_at?.slice(0, 4)}</span>
             </div>
           </div>
         </div>
-        <button className="bg-red-600 hover:bg-red-700 px-6 py-2 rounded-md font-bold mt-4 lg:mt-0">
-          Save Changes
+        {/* Delete Team */}
+        <button
+          onClick={handleDelete}
+          disabled={deleting}
+          className={`px-6 py-2 rounded-md font-bold mt-4 lg:mt-0 transition ${
+            deleting
+              ? "bg-red-400 cursor-not-allowed"
+              : "bg-red-600 hover:bg-red-700"
+          }`}
+        >
+          {deleting ? "Deleting..." : "Delete Team"}
         </button>
       </div>
 
@@ -130,37 +164,43 @@ const TeamManagement = () => {
                 {!m.is_captain && (
                   <button
                     onClick={() => handleRemove(m)}
-                    className="bg-red-700 hover:bg-red-800 px-3 py-1 rounded-md text-xs font-bold"
+                    disabled={kicking === m.id}
+                    className={`px-3 py-1 rounded-md text-xs font-bold transition ${
+                      kicking === m.id
+                        ? "bg-red-400 cursor-not-allowed"
+                        : "bg-red-700 hover:bg-red-800"
+                    }`}
                   >
-                    Remove
+                    {kicking === m.id ? "Removing..." : "Remove"}
                   </button>
                 )}
               </div>
             ))}
-            <button className="flex items-center justify-center mt-3 gap-2 text-red-500 text-sm font-semibold">
-              + Invite New Player
-            </button>
           </div>
         </div>
 
         {/* Team Settings */}
         <div className="bg-[#141414] p-6 rounded-xl border border-red-900/20">
           <h2 className="text-xl font-bold mb-4">Team Settings</h2>
-
           <form onSubmit={handleUpdate}>
             <div className="mb-4">
-                <label className="mb-1 text-gray-300 text-sm font-medium" htmlFor="name">
-    Name
-  </label>
-  <input
-    id="name"
-    type="text"
-    value={formData.name}
-    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-    className="bg-gray-900 text-white border border-gray-700 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-600 focus:border-red-600 transition"
-    placeholder="Omni-potent"
-  />
-              <label className="block text-sm text-gray-400 mb-1">
+              <label
+                className="mb-1 text-gray-300 text-sm font-medium"
+                htmlFor="name"
+              >
+                Name
+              </label>
+              <input
+                id="name"
+                type="text"
+                value={formData.name}
+                onChange={(e) =>
+                  setFormData({ ...formData, name: e.target.value })
+                }
+                className="bg-gray-900 text-white border border-gray-700 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-600 focus:border-red-600 transition w-full"
+                placeholder="Omni-potent"
+              />
+              <label className="block text-sm text-gray-400 mt-3 mb-1">
                 Recruitment Status
               </label>
               <div className="flex gap-2">
@@ -205,17 +245,22 @@ const TeamManagement = () => {
               />
             </div>
 
-            
-
             <button
               type="submit"
-              className="mt-4 w-full bg-red-600 hover:bg-red-700 px-6 py-2 rounded-md font-bold text-sm"
+              disabled={updating}
+              className={`mt-4 w-full px-6 py-2 rounded-md font-bold text-sm transition ${
+                updating ? "bg-red-400 cursor-not-allowed" : "bg-red-600 hover:bg-red-700"
+              }`}
             >
-              Save Changes
+              {updating ? "Saving..." : "Save Changes"}
             </button>
           </form>
 
-          <button className="mt-4 w-full bg-gray-700 hover:bg-gray-600 px-6 py-2 rounded-md font-bold text-sm">
+          <button
+            type="button"
+            onClick={fetchTeam}
+            className="mt-4 w-full bg-gray-700 hover:bg-gray-600 px-6 py-2 rounded-md font-bold text-sm"
+          >
             Reset Settings
           </button>
         </div>

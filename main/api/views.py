@@ -197,6 +197,7 @@ class TeamViewSet(viewsets.ModelViewSet):
         if self.action == "list":
             queryset = queryset.exclude(owner=self.request.user)
         
+        
         # Apply filters
         region = self.request.query_params.get("region")
         role = self.request.query_params.get("role")
@@ -323,6 +324,24 @@ class TeamViewSet(viewsets.ModelViewSet):
         serializer = TeamSerializer(team)
 
         return Response({"detail": "Member kicked successfully.","team":serializer.data})
+    
+    @action(detail=True,methods=['delete'])
+    def delete_team(self,request,pk=None):
+        try: 
+            team = Team.objects.get(pk=pk)
+        except Team.DoesNotExist:
+            raise NotFound("Team not found")
+        
+        if team.owner != request.user:
+            raise PermissionDenied("Only the team owner can delete this team.")
+        
+        with transaction.atomic():
+            TeamMembership.objects.filter(team=team).delete()
+            team.delete()
+            
+        return Response({"detail": "Team deleted successfully"})
+
+        
 
 class TeamMembershipViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = TeamMembership.objects.select_related("player", "team")

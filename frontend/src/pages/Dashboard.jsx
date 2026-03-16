@@ -260,7 +260,7 @@ const Dashboard = () => {
           {/* CREATE TEAM CARD */}
 
           <Link
-            to="/create-team"
+            to="/teams/create"
             className="ui-card flex flex-col items-center justify-center text-center border-dashed border-2 border-gray-600 hover:border-[var(--color-primary)] hover:bg-black/20 transition cursor-pointer"
           >
 

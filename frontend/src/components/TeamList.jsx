@@ -1,12 +1,14 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { getTeamList } from "../context/Api";
 import { Link } from "react-router-dom";
+import TeamApplicationPop from "../components/TeamApplicationPop";
 
 const TeamList = ({ FILTERS }) => {
   const [teams, setTeams] = useState([]);
   const [nextUrl, setNextUrl] = useState(null);
   const [loading, setLoading] = useState(false);
   const [debouncedFilters, setDebouncedFilters] = useState(FILTERS);
+  const [seenTeams, setSeenTeams] = useState({}); // track pop-up per team
 
   const observer = useRef();
 
@@ -43,6 +45,15 @@ const TeamList = ({ FILTERS }) => {
     setLoading(false);
   };
 
+  /* ------------------ Pop-up Toggle ------------------ */
+  const togglePop = (teamId) => {
+    setSeenTeams((prev) => ({
+      ...prev,
+      [teamId]: !prev[teamId],
+    }));
+  };
+
+  /* ------------------ Infinite Scroll Ref ------------------ */
   const lastTeamRef = useCallback(
     (node) => {
       if (loading) return;
@@ -85,9 +96,7 @@ const TeamList = ({ FILTERS }) => {
             : null;
 
         const filledRoles = [
-          ...new Set(
-            team.memberships?.map((m) => m.role).filter(Boolean)
-          ),
+          ...new Set(team.memberships?.map((m) => m.role).filter(Boolean)),
         ];
 
         return (
@@ -98,10 +107,7 @@ const TeamList = ({ FILTERS }) => {
           >
             {/* Top Section */}
             <div className="p-6 flex justify-between items-start">
-
-              {/* Logo + Info */}
               <div className="flex gap-4">
-
                 {/* Logo */}
                 <div className="w-16 h-16 bg-background-dark border border-border-dark rounded-lg overflow-hidden flex items-center justify-center">
                   {team.image ? (
@@ -119,9 +125,7 @@ const TeamList = ({ FILTERS }) => {
 
                 {/* Name + Roles */}
                 <div>
-                  <h3 className="text-lg font-bold text-white">
-                    {team.name}
-                  </h3>
+                  <h3 className="text-lg font-bold text-white">{team.name}</h3>
 
                   <p className="text-xs text-slate-500 uppercase tracking-wider mt-1">
                     Lineup
@@ -144,32 +148,48 @@ const TeamList = ({ FILTERS }) => {
                     )}
                   </div>
                 </div>
-
               </div>
 
               {/* MMR Badge */}
               <span className="bg-red-900/40 text-red-400 text-xs font-bold px-3 py-1 rounded-full">
                 {avgMmr ?? "N/A"} MMR
               </span>
-
             </div>
 
             {/* Bottom Buttons */}
-           <div className="grid grid-cols-2 border-t border-border-dark">
-             <Link to={`/teams/${team.id}`}> <button className="py-3 text-sm font-medium text-white hover:bg-slate-800 transition">
-                View Team
-              </button></Link> 
+            <div className="grid grid-cols-2 border-t border-border-dark">
+              {/* View Team */}
+              <Link to={`/teams/${team.id}`}>
+                <button className="py-3 text-sm font-medium text-white hover:bg-slate-800 transition w-full">
+                  View Team
+                </button>
+              </Link>
 
-              <button
-                disabled={!team.looking_for_members}
-                className={`py-3 text-sm font-bold transition ${
-                  team.looking_for_members
-                    ? "bg-primary text-white hover:bg-red-700"
-                    : "bg-slate-700 text-slate-400 cursor-not-allowed"
-                }`}
-              >
-                {team.looking_for_members ? "Apply" : "Not Recruiting"}
-              </button>
+              {/* Apply Button + Pop-up */}
+              {team.looking_for_members ? (
+                <div className="py-3 flex justify-center relative">
+                  <button
+                    onClick={() => togglePop(team.id)}
+                    className="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-md font-semibold transition"
+                  >
+                    Apply to Join
+                  </button>
+
+                  {seenTeams[team.id] && (
+                    <TeamApplicationPop
+                      toggle={() => togglePop(team.id)}
+                      teamId={team.id}
+                    />
+                  )}
+                </div>
+              ) : (
+                <button
+                  disabled
+                  className="py-3 bg-slate-700 text-slate-400 cursor-not-allowed w-full"
+                >
+                  Not Recruiting
+                </button>
+              )}
             </div>
           </div>
         );
