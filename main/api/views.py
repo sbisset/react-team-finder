@@ -10,7 +10,7 @@ from rest_framework.exceptions import PermissionDenied,NotFound
 import json
 from django.db import transaction
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import get_object_or_404 
+from django.shortcuts import get_object_or_404 , redirect
 from rest_framework.decorators import action
 from django.contrib.auth.models import User
 from .models import (
@@ -751,3 +751,14 @@ def confirm_password_reset(request, uidb64, token):
     user.save()
 
     return Response({"detail": "Password reset successful"})
+
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def connect_steam(request):
+    request.session["steam_connect_user_id"] = request.user.id
+    return Response({"detail": "Ready"})
+
+def steam_success(request):
+    return redirect("http://localhost:5173/dashboard?steam=connected")

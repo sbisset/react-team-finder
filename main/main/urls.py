@@ -29,6 +29,7 @@ urlpatterns = [
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('api/user/create/', UserModelCreateView.as_view(), name='user-create'),
     path('api/',include('api.urls')),   
+    path("auth/steam/", include("social_django.urls", namespace="social")),
 ]
 
 

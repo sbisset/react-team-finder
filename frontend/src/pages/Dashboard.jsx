@@ -20,6 +20,22 @@ const Dashboard = () => {
   /* ---------------------------
      LOAD TEAMS
   ---------------------------- */
+  const connectSteam = async () => {
+      const res = await fetch("http://localhost:8000/api/auth/steam/connect/", {
+        method: "GET",
+        headers: {
+          "Authorization": `Bearer ${localStorage.getItem("access_token")}`,
+        },
+        credentials: "include", // IMPORTANT
+      });
+
+      if (res.ok) {
+        window.location.href = "http://localhost:8000/auth/steam/login/steam/";
+      } else {
+        alert("Failed to start Steam connection");
+      }
+  };
+
 
   const loadTeams = async () => {
     try {
@@ -233,6 +249,13 @@ const Dashboard = () => {
           >
             {user.username}
           </Link>
+
+          <span
+  onClick={connectSteam}
+  className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition"
+>
+  Connect with Steam
+</span>
         </h1>
 
         <p className="text-gray-400 text-sm">

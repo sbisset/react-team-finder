@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    "django.contrib.sites",
     'rest_framework',
     'api',
     'django_extensions',
@@ -48,8 +49,9 @@ INSTALLED_APPS = [
     
 
 ]
-
+SITE_ID = 1
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
    
@@ -58,7 +60,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
    
-    'corsheaders.middleware.CorsMiddleware',
+    
     'django.middleware.common.CommonMiddleware',
 ]
 
@@ -74,6 +76,8 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                "social_django.context_processors.backends",
+                "social_django.context_processors.login_redirect",
             ],
         },
     },
@@ -160,11 +164,41 @@ SIMPLE_JWT = {
 }
 
 
-CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173",
+]
 
+from corsheaders.defaults import default_headers
+
+CORS_ALLOW_HEADERS = list(default_headers) + [
+    "authorization",
+]
+SESSION_COOKIE_SAMESITE = "Lax"
+SESSION_COOKIE_SECURE = False
 
 
 AUTHENTICATION_BACKENDS = (
-    'social_core.backends.steam.SteamOpenId',
-    'django.contrib.auth.backends.ModelBackend',
+    'social_core.backends.steam.SteamOpenId', 
+    "django.contrib.auth.backends.ModelBackend",  
 )
+
+CORS_ALLOW_CREDENTIALS = True
+
+SOCIAL_AUTH_PIPELINE = (
+    "social_core.pipeline.social_auth.social_details",
+    "social_core.pipeline.social_auth.social_uid",
+    
+
+  
+    "api.pipeline.link_steam_account",
+
+    
+)
+
+
+SOCIAL_AUTH_STEAM_API_KEY = config("STEAM_API_KEY")
+
+# Redirect URL after connecting Steam
+LOGIN_URL = "http://localhost:5173/login"
+LOGIN_REDIRECT_URL = "http://localhost:5173/dashboard?steam=connected"
+SOCIAL_AUTH_LOGIN_REDIRECT_URL = "http://localhost:5173/dashboard?steam=connected"
