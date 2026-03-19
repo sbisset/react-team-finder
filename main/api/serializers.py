@@ -252,3 +252,28 @@ class TeamDashboardSerializer(serializers.ModelSerializer):
     class Meta:
         model = Team
         fields = ['id', 'name', 'owner_id', 'owner_username', 'members']
+
+
+
+class PasswordResetRequestSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+
+
+class PasswordResetConfirmSerializer(serializers.Serializer):
+    password = serializers.CharField()
+    password2 = serializers.CharField()
+
+    def validate(self, data):
+        if data["password"] != data["password2"]:
+            raise serializers.ValidationError("Passwords do not match")
+
+        try:
+            validate_password(data["password"])
+        except DjangoValidationError as e:
+            raise serializers.ValidationError({"password": e.messages})
+
+        return data
+
+
+
+

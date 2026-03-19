@@ -6,7 +6,8 @@ from .views import (
     TeamApplicationViewSet,
     TeamInviteViewSet,
     DashboardViewSet,
-    
+    request_password_reset,
+    confirm_password_reset,
 )
 from django.urls import path
 
@@ -21,4 +22,6 @@ router.register("dashboard", DashboardViewSet, basename="dashboard")
 
 
 urlpatterns = router.urls + [
+    path("auth/password-reset/", request_password_reset),
+    path("auth/password-reset-confirm/<uidb64>/<token>/", confirm_password_reset),
 ]

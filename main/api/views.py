@@ -36,6 +36,7 @@ from .serializers import (
     RegisterSerializer,
     TeamDashboardSerializer,
     TeamUpdateSerializer,
+    PasswordResetConfirmSerializer,
 )
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import OrderingFilter,SearchFilter
@@ -532,7 +533,7 @@ class TeamInviteViewSet(viewsets.ModelViewSet):
 
 
 
-from rest_framework.decorators import action
+from rest_framework.decorators import action,permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
@@ -679,3 +680,74 @@ class DashboardViewSet(viewsets.ViewSet):
 
                 app.delete()
                 return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+
+
+
+
+from django.contrib.auth.tokens import default_token_generator
+from django.utils.encoding import force_bytes
+from django.utils.http import urlsafe_base64_decode
+from django.utils.http import urlsafe_base64_encode
+from rest_framework.decorators import api_view
+
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def request_password_reset(request):
+    """
+    Request password reset by email.
+    Sends a reset link to the user's email.
+    """
+    email = request.data.get("email")
+    if not email:
+        return Response({"detail": "Email is required"}, status=400)
+
+    try:
+        user = User.objects.get(email=email)
+        print(user)
+    except User.DoesNotExist:
+        # Do not reveal if email exists
+        return Response({"detail": "If email exists, a reset link has been sent."})
+
+    # Encode user ID
+    uid = urlsafe_base64_encode(force_bytes(user.id))
+    token = default_token_generator.make_token(user)
+
+    # Create reset link (match your frontend route)
+    reset_link = f"http://localhost:5173/reset-password/{uid}/{token}/"
+
+    # Send email (for dev, we can just print)
+    print("Reset link (dev):", reset_link)
+
+    # In production, use real email
+    # send_mail(
+    #     subject="Reset your password",
+    #     message=f"Click here to reset your password: {reset_link}",
+    #     from_email="noreply@yourapp.com",
+    #     recipient_list=[email],
+    # )
+
+    return Response({"detail": "If email exists, a reset link has been sent."})
+
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def confirm_password_reset(request, uidb64, token):
+    try:
+        uid = urlsafe_base64_decode(uidb64).decode()
+        user = User.objects.get(id=uid)
+    except:
+        return Response({"detail": "Invalid link"}, status=400)
+
+    if not default_token_generator.check_token(user, token):
+        return Response({"detail": "Invalid or expired token"}, status=400)
+
+    serializer = PasswordResetConfirmSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+
+    user.set_password(serializer.validated_data["password"])
+    user.save()
+
+    return Response({"detail": "Password reset successful"})

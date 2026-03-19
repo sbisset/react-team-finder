@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate, Link } from "react-router-dom";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 const Register = () => {
   const { registerUser } = useAuth();
@@ -15,6 +16,8 @@ const Register = () => {
 
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -42,6 +45,9 @@ const Register = () => {
     setLoading(false);
   };
 
+  const handleToggle = () => {
+  setShowPassword(!showPassword);
+};
   return (
     <div className="min-h-screen flex flex-col bg-background-dark text-slate-100">
 
@@ -140,46 +146,51 @@ const Register = () => {
                 </div>
               </div>
 
-              {/* Password */}
-              <div className="space-y-1.5">
-                <label className="text-sm font-semibold text-slate-300 ml-1">
-                  Password
-                </label>
-                <input
-                  type="password"
-                  value={credentials.password}
-                  onChange={(e) =>
-                    setCredentials({
-                      ...credentials,
-                      password: e.target.value,
-                    })
-                  }
-                  placeholder="••••••••"
-                  className="w-full px-4 py-3 bg-background-dark border border-border-dark rounded-lg text-white focus:border-primary focus:ring-1 focus:ring-primary/20 outline-none"
-                  required
-                />
-              </div>
+            {/* Password */}
+                  <div className="space-y-1.5 relative">
+                    <label className="text-sm font-semibold text-slate-300 ml-1">
+                      Password
+                    </label>
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      value={credentials.password}
+                      onChange={(e) =>
+                        setCredentials({
+                          ...credentials,
+                          password: e.target.value,
+                        })
+                      }
+                      placeholder="••••••••"
+                      className="w-full px-4 py-3 pr-10 bg-background-dark border border-border-dark rounded-lg text-white focus:border-primary focus:ring-1 focus:ring-primary/20 outline-none"
+                      required
+                    />
+                  </div>
 
-              {/* Confirm Password */}
-              <div className="space-y-1.5">
-                <label className="text-sm font-semibold text-slate-300 ml-1">
-                  Confirm Password
-                </label>
-                <input
-                  type="password"
-                  value={credentials.password2}
-                  onChange={(e) =>
-                    setCredentials({
-                      ...credentials,
-                      password2: e.target.value,
-                    })
-                  }
-                  placeholder="••••••••"
-                  className="w-full px-4 py-3 bg-background-dark border border-border-dark rounded-lg text-white focus:border-primary focus:ring-1 focus:ring-primary/20 outline-none"
-                  required
-                />
-              </div>
+          {/* Confirm Password */}
+          <div className="space-y-1.5 relative">
+            <label className="text-sm font-semibold text-slate-300 ml-1">
+              Confirm Password
+            </label>
+            <input
+              type={showPassword ? "text" : "password"}
+              value={credentials.password2}
+              onChange={(e) =>
+                setCredentials({
+                  ...credentials,
+                  password2: e.target.value,
+                })
+              }
+              placeholder="••••••••"
+              className="w-full px-4 py-3 pr-10 bg-background-dark border border-border-dark rounded-lg text-white focus:border-primary focus:ring-1 focus:ring-primary/20 outline-none"
+              required
+            />
 
+            {/* Eye Icon */}
+            <span onClick={handleToggle} className="absolute right-3 top-[38px] cursor-pointer">
+              {showPassword ? <FaEyeSlash size={20} /> : <FaEye size={20} />}
+            </span>
+          </div>
+                 
               {/* Error Messages */}
               {error && (
                 <div className="bg-red-900/30 border border-red-700 text-red-400 p-3 rounded-lg text-sm">

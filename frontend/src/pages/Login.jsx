@@ -189,6 +189,8 @@ const LoginPage = () => {
               <Link to="/register" className="text-primary font-semibold hover:underline">
                 Create an account
               </Link>
+              <br/>
+              <Link to="/forgot-password" className="text-primary font-semibold hover:underline">Forgot Password?</Link>
             </p>
 
           </div>

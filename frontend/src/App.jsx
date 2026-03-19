@@ -17,6 +17,8 @@ import Profile from './pages/Profile';
 import TeamManagement from './pages/TeamManagement';
 import { Toaster } from "react-hot-toast";
 import CreateTeam from './pages/CreateTeam';
+import ForgotPassword from './pages/reset/ForgotPassword';
+import ResetPassword from './pages/reset/CreateResetPassword';
 
 function App() {
   return (
@@ -30,6 +32,8 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password/:uid/:token" element={<ResetPassword />} />
 
           {/* Protected Routes */}
           <Route element={<ProtectedRoute />}>
