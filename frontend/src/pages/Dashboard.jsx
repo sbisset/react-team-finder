@@ -250,12 +250,18 @@ const Dashboard = () => {
             {user.username}
           </Link>
 
-          <span
+      <button
   onClick={connectSteam}
-  className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition"
+  className="ml-4 inline-flex items-center gap-2 px-4 py-2 rounded-lg 
+             bg-[#171a21] text-white font-semibold text-sm
+             border border-[#2a2f3a]
+             hover:bg-[#1f2430] hover:border-[#3b4252]
+             transition-all duration-200
+             shadow-sm hover:shadow-md active:scale-[0.97]"
 >
-  Connect with Steam
-</span>
+  <span className="text-lg">🟦</span>
+  Connect Steam
+</button>
         </h1>
 
         <p className="text-gray-400 text-sm">

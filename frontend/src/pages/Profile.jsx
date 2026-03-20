@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { getProfile, updateProfile } from "../context/AuthApi";
+import toast from "react-hot-toast";
 
 const regionList = {
   1: "North America",
@@ -35,7 +36,7 @@ const Profile = () => {
     getProfile()
       .then((data) => {
         setProfile(data);
-        setMmr(data.mmr || "");
+        setMmr(data.mmr || 0 );
         setWins(data.wins || 0);
         setLosses(data.losses || 0);
         setSteamId(data.steam_id || "");
@@ -62,7 +63,7 @@ const Profile = () => {
     setSubmitting(true);
     try {
       const updatedProfile = await updateProfile({
-        mmr,
+        mmr: Number(mmr),
         wins: Number(wins),
         losses: Number(losses),
         steam_id: steamId,
@@ -73,9 +74,9 @@ const Profile = () => {
         preferred_roles: roles,
       });
       setProfile(updatedProfile);
-      alert("Profile updated!");
+      toast.success("Profile updated!");
     } catch (err) {
-      alert("Failed to update profile.");
+      toast.error("Failed to update profile.");
     } finally {
       setSubmitting(false);
     }
@@ -115,7 +116,9 @@ const Profile = () => {
           </div>
           <div className="flex-1 space-y-2">
             <div className="flex items-center gap-2 flex-wrap">
-              <h2 className="text-2xl md:text-3xl font-bold">{profile?.user.username}</h2>
+              <h2 className="text-2xl md:text-3xl font-bold">
+                {profile?.user.username}
+              </h2>
               {steamVerified && (
                 <span className="px-2 py-0.5 bg-primary/20 text-primary text-xs font-bold uppercase rounded">
                   Verified
@@ -123,11 +126,15 @@ const Profile = () => {
               )}
             </div>
             <div className="flex gap-4 items-center text-slate-400 text-sm flex-wrap">
-              <div className="flex items-center gap-1">🌍 {regionList[region]}</div>
+              <div className="flex items-center gap-1">
+                🌍 {regionList[region]}
+              </div>
               <div className="flex items-center gap-1">
                 🎯 {lft ? "Looking for Team" : "Not LFT"}
               </div>
-              <div className="flex items-center gap-1">📈 Winrate: {winrate}%</div>
+              <div className="flex items-center gap-1">
+                📈 Winrate: {winrate}%
+              </div>
             </div>
             <div className="flex gap-2 flex-wrap pt-1">
               {roles.map((role) => (
@@ -160,7 +167,9 @@ const Profile = () => {
             {/* Region + LFT */}
             <div className="flex gap-4 flex-wrap items-center">
               <div className="flex-1">
-                <label className="block mb-1 text-sm text-slate-400">Region</label>
+                <label className="block mb-1 text-sm text-slate-400">
+                  Region
+                </label>
                 <select
                   className="w-full bg-[#1a1d25] border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-red-600"
                   value={region}
@@ -182,7 +191,10 @@ const Profile = () => {
                   id="lft-checkbox"
                   className="w-4 h-4"
                 />
-                <label htmlFor="lft-checkbox" className="text-sm text-slate-400">
+                <label
+                  htmlFor="lft-checkbox"
+                  className="text-sm text-slate-400"
+                >
                   Looking for Team
                 </label>
               </div>
@@ -190,7 +202,9 @@ const Profile = () => {
 
             {/* Roles as clickable pills */}
             <div>
-              <label className="block mb-1 text-sm text-slate-400">Preferred Roles</label>
+              <label className="block mb-1 text-sm text-slate-400">
+                Preferred Roles
+              </label>
               <div className="flex flex-wrap gap-2">
                 {roleOptions.map((roleOption) => (
                   <button
@@ -212,7 +226,9 @@ const Profile = () => {
             {/* Stats: MMR, Wins, Losses */}
             <div className="grid grid-cols-3 gap-4">
               <div>
-                <label className="block mb-1 text-sm text-slate-400">MMR</label>
+                <label className="block mb-1 text-sm text-slate-400">
+                  MMR
+                </label>
                 <input
                   type="number"
                   className="w-full bg-[#1a1d25] border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-red-600"
@@ -221,7 +237,9 @@ const Profile = () => {
                 />
               </div>
               <div>
-                <label className="block mb-1 text-sm text-slate-400">Wins</label>
+                <label className="block mb-1 text-sm text-slate-400">
+                  Wins
+                </label>
                 <input
                   type="number"
                   className="w-full bg-[#1a1d25] border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-red-600"
@@ -230,7 +248,9 @@ const Profile = () => {
                 />
               </div>
               <div>
-                <label className="block mb-1 text-sm text-slate-400">Losses</label>
+                <label className="block mb-1 text-sm text-slate-400">
+                  Losses
+                </label>
                 <input
                   type="number"
                   className="w-full bg-[#1a1d25] border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-red-600"

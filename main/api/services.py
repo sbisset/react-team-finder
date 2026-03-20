@@ -28,14 +28,18 @@ def update_player_dota_stats(player):
     if not player.steam_id:
         return None
     id = player.steam_id
-
+    print(id)
     steam32_formatted = Converter.to_steamID3(id)
-
-    url = f"{OPEN_DOTA_API}{steam32_formatted}"
+    print(steam32_formatted)
+    steam32 = steam32_formatted.split(":")[2].rstrip("]")
+    print(steam32)
+    url = f"{OPEN_DOTA_API}{steam32}"
+    print(url)
     try:
         resp = requests.get(url)
         resp.raise_for_status()
         data = resp.json()
+        print(data)
 
         # MMR estimate
         mmr_estimate = data.get("mmr_estimate", {}).get("estimate")

@@ -32,7 +32,7 @@ def link_steam_account(backend, user, response, request, *args, **kwargs):
     player.steam_verified = True
     player.steam_community = f"https://steamcommunity.com/profiles/{steam_id}"
     player.save()
-
+    
     update_player_dota_stats(player)
 
     del request.session["steam_connect_user_id"]
