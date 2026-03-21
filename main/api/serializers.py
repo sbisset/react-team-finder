@@ -59,6 +59,7 @@ class PlayerSerializer(serializers.ModelSerializer):
             "steam_verified",
             "bio",
             "created_at",
+            "top_heroes",
         ]
         read_only_fields = ["id", "created_at"]
 

@@ -762,3 +762,11 @@ def connect_steam(request):
 
 def steam_success(request):
     return redirect("http://localhost:5173/dashboard?steam=connected")
+
+from .services import get_hero_stats
+
+@api_view(["POST"])
+def refresh_top_heroes(request):
+    player = request.user.player
+    get_hero_stats(player)
+    return Response({"status":"updated","top_heroes":player.top_heroes})

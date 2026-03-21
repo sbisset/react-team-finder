@@ -9,6 +9,7 @@ from .views import (
     request_password_reset,
     confirm_password_reset,
     connect_steam,
+    refresh_top_heroes,
 )
 from django.urls import path,include
 
@@ -26,4 +27,5 @@ urlpatterns = router.urls + [
     path("auth/password-reset/", request_password_reset),
     path("auth/password-reset-confirm/<uidb64>/<token>/", confirm_password_reset),
     path("auth/steam/connect/", connect_steam),
+    path("refresh-top-heroes/",refresh_top_heroes)
 ]

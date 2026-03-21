@@ -52,7 +52,7 @@ class Player(models.Model):
     mmr = models.IntegerField(blank=True, null=True, db_index=True)
     wins = models.IntegerField(blank=True, null=True)
     losses = models.IntegerField(blank=True, null=True)
-    
+    top_heroes = models.JSONField(null=True, blank=True)
     steam_id = models.CharField(max_length=60, blank=True, null=True)
     steam_community = models.URLField(blank=True, null=True)
     steam_verified = models.BooleanField(default=False)
