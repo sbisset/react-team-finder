@@ -551,12 +551,13 @@ class DashboardViewSet(viewsets.ViewSet):
         # Invites
         sent_invites = TeamInvite.objects.filter(sender=user)
         received_invites = TeamInvite.objects.filter(recipient__user=user)
-
+        player =  Player.objects.filter(user=user).first()
         return Response({
             "sent_applications": TeamApplicationSerializer(sent_applications, many=True).data,
             "received_applications": TeamApplicationSerializer(received_applications, many=True).data,
             "sent_invites": TeamInviteSerializer(sent_invites, many=True).data,
             "received_invites": TeamInviteSerializer(received_invites, many=True).data,
+            "player":PlayerSerializer(player).data,
         })
     
 
@@ -763,10 +764,12 @@ def connect_steam(request):
 def steam_success(request):
     return redirect("http://localhost:5173/dashboard?steam=connected")
 
-from .services import get_hero_stats
+from .services import get_hero_stats,get_win_loss
 
 @api_view(["POST"])
 def refresh_top_heroes(request):
     player = request.user.player
     get_hero_stats(player)
-    return Response({"status":"updated","top_heroes":player.top_heroes})
+    get_win_loss(player)
+    return Response({"status":"updated","top_heroes":player.top_heroes,"wins":player.wins,"losses":player.losses})
+

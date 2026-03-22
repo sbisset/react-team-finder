@@ -60,13 +60,7 @@ def update_player_dota_stats(player):
         if mmr_estimate is not None:
             player.mmr = mmr_estimate
 
-        # Wins / losses
-        wins = data.get("win")
-        losses = data.get("lose")
-        if wins is not None:
-            player.wins = wins
-        if losses is not None:
-            player.losses = losses
+        
 
         # Optional: update persona if not already set
         if not player.persona:
@@ -121,4 +115,29 @@ def get_hero_stats(player):
 
     except requests.RequestException as e:
         print(f"OpenDota error: {e}")
-        
+
+
+def get_win_loss(player):
+    if not player.steam_id:
+         return None
+    id = player.steam_id
+    steam32_formatted = Converter.to_steamID3(id)
+    steam32 = steam32_formatted.split(":")[2].rstrip("]")
+    url = f'{OPEN_DOTA_API}{steam32}/wl'
+    try:
+        resp = requests.get(url)
+        resp.raise_for_status()
+        data = resp.json()
+        print(data)
+
+        wins = data.get("win")
+        losses = data.get("lose")
+        if wins is not None:
+            player.wins = wins
+        if losses is not None:
+            player.losses = losses
+    
+        player.save(update_fields=["wins","losses"])
+
+    except requests.RequestException as e:
+        print(f"OpenDota error: {e}")

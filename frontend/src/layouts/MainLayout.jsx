@@ -73,7 +73,7 @@ const MainLayout = () => {
             <div className="size-10 bg-[#1f1d18] rounded-xl flex items-center justify-center border border-[#2a2720]">
               {user?.username?.[0]?.toUpperCase()}
             </div>
-            <button onClick={handleLogout}>Logout</button>
+            <button className="text-red-500 hover:underline" onClick={handleLogout}>Logout</button>
           </div>
 
         </header>

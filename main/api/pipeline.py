@@ -2,7 +2,7 @@
 from django.shortcuts import redirect
 from django.contrib.auth import get_user_model
 from .models import Player
-from .services import update_player_dota_stats,get_hero_stats
+from .services import update_player_dota_stats,get_hero_stats,get_win_loss
 
 def link_steam_account(backend, user, response, request, *args, **kwargs):
     if backend.name != "steam":
@@ -35,5 +35,6 @@ def link_steam_account(backend, user, response, request, *args, **kwargs):
     
     update_player_dota_stats(player)
     get_hero_stats(player)
+    get_win_loss(player)
 
     del request.session["steam_connect_user_id"]
