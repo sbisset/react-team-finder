@@ -4,6 +4,7 @@ import { getTeamMemberships, getInvites } from "../context/AuthApi";
 import { Link, Navigate } from "react-router-dom";
 import RequestDetail from "../components/RequestDetail";
 import { leaveTeam } from "../context/DashboardApi";
+import toast from "react-hot-toast";
 
 const STATUS_LABELS = { 1: "Pending", 2: "Accepted", 3: "Rejected" };
 const STATUS_COLORS = {
@@ -22,18 +23,21 @@ const Dashboard = () => {
 
   /* ---------------- LOAD TEAMS ---------------- */
 
-  const loadTeams = async () => {
+  const loadTeams = async (showErrorToast = true) => {
     try {
       const memberships = await getTeamMemberships();
       setTeams(memberships);
     } catch (err) {
+      if (showErrorToast) {
+        toast.error("Failed to load teams");
+      }
       if (err?.status === 401) logout();
     }
   };
 
   useEffect(() => {
     if (!user) return;
-    loadTeams();
+    loadTeams(false);
   }, [user]);
 
   /* ---------------- LOAD DASHBOARD ---------------- */
@@ -48,6 +52,7 @@ const Dashboard = () => {
         setDashboardData(data);
       } catch (err) {
         console.error(err);
+        toast.error("Failed to load dashboard");
       } finally {
         setLoading(false);
       }
@@ -59,29 +64,41 @@ const Dashboard = () => {
   /* ---------------- STEAM CONNECT ---------------- */
 
   const connectSteam = async () => {
-    const res = await fetch("http://localhost:8000/api/auth/steam/connect/", {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("access_token")}`,
-      },
-      credentials: "include",
-    });
+    const toastId = toast.loading("Connecting to Steam...");
 
-    if (res.ok) {
-      window.location.href = "http://localhost:8000/auth/steam/login/steam/";
-    } else {
-      alert("Failed to start Steam connection");
+    try {
+      const res = await fetch("http://localhost:8000/api/auth/steam/connect/", {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+        },
+        credentials: "include",
+      });
+
+      if (res.ok) {
+        toast.success("Redirecting to Steam...", { id: toastId });
+        window.location.href = "http://localhost:8000/auth/steam/login/steam/";
+      } else {
+        toast.error("Failed to start Steam connection", { id: toastId });
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Steam connection failed", { id: toastId });
     }
   };
 
   /* ---------------- LEAVE TEAM ---------------- */
 
   const handleLeave = async (id) => {
+    const toastId = toast.loading("Leaving team...");
+
     try {
       await leaveTeam(id);
-      await loadTeams();
+      await loadTeams(false);
+      toast.success("Left team successfully", { id: toastId });
     } catch (err) {
       console.error(err);
+      toast.error("Failed to leave team", { id: toastId });
     }
   };
 
@@ -208,7 +225,12 @@ const Dashboard = () => {
         <div className="relative z-20 w-full px-10">
           <div className="flex items-center justify-between flex-wrap gap-4">
             <h1 className="text-4xl font-black text-white">
-              Welcome back, <Link to="/profile" ><span className="text-red-500 text-red-500 hover:underline">{user.username}</span></Link>
+              Welcome back,{" "}
+              <Link to="/profile">
+                <span className="text-red-500 hover:underline">
+                  {user.username}
+                </span>
+              </Link>
             </h1>
 
             {player?.mmr && (
@@ -216,7 +238,9 @@ const Dashboard = () => {
                 <span className="text-xs uppercase tracking-wider text-slate-400">
                   MMR
                 </span>
-                <span className="text-lg font-bold text-red-500">{player.mmr}</span>
+                <span className="text-lg font-bold text-red-500">
+                  {player.mmr}
+                </span>
               </div>
             )}
           </div>
@@ -341,7 +365,12 @@ const Dashboard = () => {
                               {team.name}
                             </Link>
                           ) : (
-                            <Link to={`/teams/${team.id}`} className="text-red-500 hover:underline">{team.name}</Link>
+                            <Link
+                              to={`/teams/${team.id}`}
+                              className="text-red-500 hover:underline"
+                            >
+                              {team.name}
+                            </Link>
                           )}
                         </h3>
 

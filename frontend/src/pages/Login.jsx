@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate, Navigate, Link } from "react-router-dom";
+import toast from "react-hot-toast";
 
 const LoginPage = () => {
   const { login, user } = useAuth();
@@ -17,14 +18,21 @@ const LoginPage = () => {
     e.preventDefault();
     setLoading(true);
 
-    const success = await login(credentials);
+    const toastId = toast.loading("Signing in...");
 
-    setLoading(false);
+    try {
+      const success = await login(credentials);
 
-    if (success) {
-      navigate("/dashboard");
-    } else {
-      alert("Login failed. Try again.");
+      if (success) {
+        toast.success("Signed in successfully!", { id: toastId });
+        navigate("/dashboard");
+      } else {
+        toast.error("Login failed. Try again.", { id: toastId });
+      }
+    } catch (err) {
+      toast.error("Login failed. Try again.", { id: toastId });
+    } finally {
+      setLoading(false);
     }
   };
 

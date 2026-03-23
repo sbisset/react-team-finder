@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate, Link } from "react-router-dom";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
+import toast from "react-hot-toast";
 
 const Register = () => {
   const { registerUser } = useAuth();
@@ -18,36 +19,41 @@ const Register = () => {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
 
     if (credentials.password !== credentials.password2) {
       setError({ password: ["Passwords do not match"] });
+      toast.error("Passwords do not match");
       return;
     }
 
     setLoading(true);
+    const toastId = toast.loading("Creating account...");
 
     try {
       const response = await registerUser(credentials);
 
       if (response.success) {
+        toast.success("Account created successfully!", { id: toastId });
         navigate("/login");
       } else {
         setError(response.errors || { general: ["Registration failed"] });
+        toast.error("Registration failed", { id: toastId });
       }
     } catch (err) {
       setError({ general: ["Something went wrong."] });
+      toast.error("Something went wrong.", { id: toastId });
     }
 
     setLoading(false);
   };
 
   const handleToggle = () => {
-  setShowPassword(!showPassword);
-};
+    setShowPassword(!showPassword);
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-background-dark text-slate-100">
 
