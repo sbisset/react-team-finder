@@ -107,24 +107,47 @@ class PlayerViewSet(viewsets.ModelViewSet):
         mmr_min = self.request.query_params.get("min_mmr")
         mmr_max = self.request.query_params.get("max_mmr")
         username = self.request.query_params.get("username")
+        looking_for_team = self.request.query_params.get("looking_for_team")
 
         if region:
             queryset = queryset.filter(region=region)
 
         if mmr_min not in [None, ""]:
-            mmr_min = int(mmr_min)
-            queryset = queryset.filter(mmr__gte=mmr_min)
-            print("min_mmr:", mmr_min)
-            
+            queryset = queryset.filter(mmr__gte=int(mmr_min))
+
         if mmr_max not in [None, ""]:
-            mmr_max = int(mmr_max)
-            queryset = queryset.filter(mmr__lte=mmr_max)
-            print("max_mmr:", mmr_max)
-        
+            queryset = queryset.filter(mmr__lte=int(mmr_max))
+
         if username:
             queryset = queryset.filter(user__username__icontains=username)
 
+        if looking_for_team in ["true", "false"]:
+            queryset = queryset.filter(
+                looking_for_team=(looking_for_team == "true")
+            )
+
         return queryset
+
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        role = request.query_params.get("role")
+
+        if role:
+            queryset = [
+                player for player in queryset
+                if role.strip().lower() in [
+                    r.strip().lower() for r in (player.preferred_roles or [])
+                ]
+            ]
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
     
 
 class TeamViewSet(viewsets.ModelViewSet):

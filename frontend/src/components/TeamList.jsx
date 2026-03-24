@@ -2,17 +2,33 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { getTeamList } from "../context/Api";
 import { Link } from "react-router-dom";
 import TeamApplicationPop from "../components/TeamApplicationPop";
+import toast from "react-hot-toast";
+
+const ALL_ROLES = [
+  "Carry",
+  "Mid",
+  "Offlane",
+  "Support",
+  "Hard Support",
+];
+
+const roleIcons = {
+  Carry: "🗡️",
+  Mid: "🔥",
+  Offlane: "🛡️",
+  Support: "✨",
+  "Hard Support": "💎",
+};
 
 const TeamList = ({ FILTERS }) => {
   const [teams, setTeams] = useState([]);
   const [nextUrl, setNextUrl] = useState(null);
   const [loading, setLoading] = useState(false);
   const [debouncedFilters, setDebouncedFilters] = useState(FILTERS);
-  const [seenTeams, setSeenTeams] = useState({}); // track pop-up per team
+  const [seenTeams, setSeenTeams] = useState({});
 
   const observer = useRef();
 
-  /* ------------------ Debounce Filters ------------------ */
   useEffect(() => {
     const timeout = setTimeout(() => {
       setDebouncedFilters(FILTERS);
@@ -21,31 +37,38 @@ const TeamList = ({ FILTERS }) => {
     return () => clearTimeout(timeout);
   }, [FILTERS]);
 
-  /* ------------------ Load First Page ------------------ */
   useEffect(() => {
     loadFirstPage();
   }, [debouncedFilters]);
 
   const loadFirstPage = async () => {
-    setLoading(true);
-    const data = await getTeamList(debouncedFilters);
-    setTeams(data.results);
-    setNextUrl(data.next);
-    setLoading(false);
+    try {
+      setLoading(true);
+      const data = await getTeamList(debouncedFilters);
+      setTeams(data.results);
+      setNextUrl(data.next);
+    } catch (err) {
+      toast.error("Failed to load teams");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  /* ------------------ Load More (Infinite Scroll) ------------------ */
   const loadMore = async () => {
     if (!nextUrl || loading) return;
 
-    setLoading(true);
-    const data = await getTeamList({}, nextUrl);
-    setTeams((prev) => [...prev, ...data.results]);
-    setNextUrl(data.next);
-    setLoading(false);
+    try {
+      setLoading(true);
+      const data = await getTeamList({}, nextUrl);
+      setTeams((prev) => [...prev, ...data.results]);
+      setNextUrl(data.next);
+    } catch (err) {
+      toast.error("Failed to load more teams");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  /* ------------------ Pop-up Toggle ------------------ */
   const togglePop = (teamId) => {
     setSeenTeams((prev) => ({
       ...prev,
@@ -53,7 +76,6 @@ const TeamList = ({ FILTERS }) => {
     }));
   };
 
-  /* ------------------ Infinite Scroll Ref ------------------ */
   const lastTeamRef = useCallback(
     (node) => {
       if (loading) return;
@@ -70,134 +92,158 @@ const TeamList = ({ FILTERS }) => {
     [loading, nextUrl]
   );
 
-  /* ------------------ Loading State ------------------ */
   if (!teams.length && loading) {
     return (
-      <div className="text-center py-20 text-slate-400 text-lg">
+      <div className="py-20 text-center text-slate-400 text-lg">
         Loading teams...
       </div>
     );
   }
 
-  /* ------------------ UI ------------------ */
+  const getTeamTier = (avgMmr) => {
+    if (!avgMmr) return "OPEN";
+    if (avgMmr >= 8000) return "PRO";
+    if (avgMmr >= 6000) return "SEMI-PRO";
+    if (avgMmr >= 4000) return "AMATEUR";
+    return "OPEN";
+  };
+
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-      {teams.map((team, index) => {
-        const isLast = index === teams.length - 1;
+    <div>
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-4">
+        {teams.map((team, index) => {
+          const isLast = index === teams.length - 1;
 
-        const avgMmr =
-          team.memberships?.length > 0
-            ? Math.round(
-                team.memberships.reduce(
-                  (acc, m) => acc + (m.player?.mmr ?? 0),
-                  0
-                ) / team.memberships.length
-              )
-            : null;
+          const avgMmr =
+            team.memberships?.length > 0
+              ? Math.round(
+                  team.memberships.reduce(
+                    (acc, m) => acc + (m.player?.mmr ?? 0),
+                    0
+                  ) / team.memberships.length
+                )
+              : null;
 
-        const filledRoles = [
-          ...new Set(team.memberships?.map((m) => m.role).filter(Boolean)),
-        ];
+          const filledRoles = [
+            ...new Set(team.memberships?.map((m) => m.role).filter(Boolean)),
+          ];
 
-        return (
-          <div
-            key={team.id}
-            ref={isLast ? lastTeamRef : null}
-            className="bg-card-dark border border-border-dark rounded-xl overflow-hidden hover:border-primary/40 transition"
-          >
-            {/* Top Section */}
-            <div className="p-6 flex justify-between items-start">
-              <div className="flex gap-4">
-                {/* Logo */}
-                <div className="w-16 h-16 bg-background-dark border border-border-dark rounded-lg overflow-hidden flex items-center justify-center">
-                  {team.image ? (
-                    <img
-                      src="/images/default_team_logo.png"
-                      alt={team.name}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <span className="text-slate-500 font-bold text-sm">
-                      {team.name.slice(0, 2).toUpperCase()}
-                    </span>
-                  )}
-                </div>
+          const missingRoles = ALL_ROLES.filter(
+            (role) => !filledRoles.includes(role)
+          );
 
-                {/* Name + Roles */}
-                <div>
-                  <h3 className="text-lg font-bold text-white">{team.name}</h3>
+          const tier = getTeamTier(avgMmr);
 
-                  <p className="text-xs text-slate-500 uppercase tracking-wider mt-1">
-                    Lineup
-                  </p>
+          return (
+            <div
+              key={team.id}
+              ref={isLast ? lastTeamRef : null}
+              className="group overflow-hidden rounded-2xl border border-red-500/10 bg-red-500/[0.04] transition duration-300 hover:-translate-y-1 hover:border-red-500/30"
+            >
+              <div className="relative h-32 overflow-hidden bg-gradient-to-br from-red-500/20 via-[#1a120d] to-[#0f0d08]">
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(239,68,68,0.18),transparent_35%),linear-gradient(to_bottom_right,rgba(255,255,255,0.02),transparent)]" />
+                <div className="absolute inset-0 opacity-40 bg-[linear-gradient(120deg,transparent,rgba(239,68,68,0.08),transparent)]" />
 
-                  <div className="flex flex-wrap gap-2 mt-2">
-                    {filledRoles.length > 0 ? (
-                      filledRoles.map((role) => (
-                        <span
-                          key={role}
-                          className="px-3 py-1 bg-slate-800 border border-border-dark rounded-md text-xs"
-                        >
-                          {role}
-                        </span>
-                      ))
+                <div className="absolute -bottom-6 left-5">
+                  <div className="flex h-16 w-16 items-center justify-center rounded-xl border-4 border-[#120f0b] bg-[#1a1510] shadow-xl overflow-hidden">
+                    {team.image ? (
+                      <img
+                        src="/images/default_team_logo.png"
+                        alt={team.name}
+                        className="h-full w-full object-cover"
+                      />
                     ) : (
-                      <span className="text-slate-500 text-xs">
-                        No roles filled
+                      <span className="text-sm font-black text-slate-300">
+                        {team.name.slice(0, 2).toUpperCase()}
                       </span>
                     )}
                   </div>
                 </div>
               </div>
 
-              {/* MMR Badge */}
-              <span className="bg-red-900/40 text-red-400 text-xs font-bold px-3 py-1 rounded-full">
-                {avgMmr ?? "N/A"} MMR
-              </span>
-            </div>
+              <div className="px-5 pb-5 pt-10">
+                <div className="mb-2 flex items-start justify-between gap-3">
+                  <h3 className="text-xl font-bold text-white leading-tight">
+                    {team.name}
+                  </h3>
 
-            {/* Bottom Buttons */}
-            <div className="grid grid-cols-2 border-t border-border-dark">
-              {/* View Team */}
-              <Link to={`/teams/${team.id}`}>
-                <button className="py-3 text-sm font-medium text-white hover:bg-slate-800 transition w-full">
-                  View Team
-                </button>
-              </Link>
+                  <span className="rounded bg-red-500/15 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-red-400">
+                    {tier}
+                  </span>
+                </div>
 
-              {/* Apply Button + Pop-up */}
-              {team.looking_for_members ? (
-                <div className="py-3 flex justify-center relative">
-                  <button
-                    onClick={() => togglePop(team.id)}
-                    className="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-md font-semibold transition"
-                  >
-                    Apply to Join
-                  </button>
+                <p className="mb-4 flex items-center gap-2 text-sm text-slate-400">
+                  <span>↗</span>
+                  Avg MMR:{" "}
+                  <span className="font-semibold text-white">
+                    {avgMmr ?? "N/A"}
+                  </span>
+                </p>
 
-                  {seenTeams[team.id] && (
-                    <TeamApplicationPop
-                      toggle={() => togglePop(team.id)}
-                      teamId={team.id}
-                    />
+                <div className="mb-5">
+                  <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.2em] text-slate-500">
+                    Looking For
+                  </p>
+
+                  <div className="flex flex-wrap gap-2">
+                    {missingRoles.length > 0 ? (
+                      missingRoles.map((role) => (
+                        <span
+                          key={role}
+                          className="inline-flex items-center gap-1 rounded-full border border-red-500/15 bg-[#18130d] px-3 py-1 text-xs font-medium text-slate-300"
+                        >
+                          <span>{roleIcons[role] || "•"}</span>
+                          {role}
+                        </span>
+                      ))
+                    ) : (
+                      <span className="text-xs text-slate-500">
+                        No open roles
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2">
+                  <Link to={`/teams/${team.id}`}>
+                    <button className="w-full rounded-xl border border-red-500/15 bg-[#18130d] py-3 text-sm font-semibold text-white transition hover:border-red-500/40">
+                      View Team
+                    </button>
+                  </Link>
+
+                  {team.looking_for_members ? (
+                    <div className="relative">
+                      <button
+                        onClick={() => togglePop(team.id)}
+                        className="w-full rounded-xl bg-red-500 py-3 text-sm font-bold uppercase tracking-wider text-white transition hover:brightness-110"
+                      >
+                        Apply
+                      </button>
+
+                      {seenTeams[team.id] && (
+                        <TeamApplicationPop
+                          toggle={() => togglePop(team.id)}
+                          teamId={team.id}
+                        />
+                      )}
+                    </div>
+                  ) : (
+                    <button
+                      disabled
+                      className="w-full cursor-not-allowed rounded-xl bg-slate-800 py-3 text-sm font-semibold text-slate-500"
+                    >
+                      Full
+                    </button>
                   )}
                 </div>
-              ) : (
-                <button
-                  disabled
-                  className="py-3 bg-slate-700 text-slate-400 cursor-not-allowed w-full"
-                >
-                  Not Recruiting
-                </button>
-              )}
+              </div>
             </div>
-          </div>
-        );
-      })}
+          );
+        })}
+      </div>
 
-      {/* Loading More */}
       {loading && teams.length > 0 && (
-        <div className="col-span-full text-center py-6 text-slate-500 text-sm">
+        <div className="col-span-full py-8 text-center text-sm text-slate-500">
           Loading more teams...
         </div>
       )}

@@ -1,6 +1,22 @@
 import { useState } from "react";
 import PlayerList from "../components/PlayerList";
 
+const roles = [
+  "Carry",
+  "Mid",
+  "Offlane",
+  "Support",
+  "Hard Support",
+];
+
+const roleIcons = {
+  Carry: "🗡️",
+  Mid: "🔥",
+  Offlane: "🛡️",
+  Support: "✨",
+  "Hard Support": "💎",
+};
+
 const PlayersPage = () => {
   const [filters, setFilters] = useState({
     NAME: "",
@@ -20,133 +36,118 @@ const PlayersPage = () => {
   };
 
   return (
-    <div className="space-y-8">
+    <div className="min-h-screen bg-[#0f0d08] text-white">
+      <div className="max-w-7xl mx-auto px-6 py-10 lg:px-10">
 
-      {/* Page Header */}
-      <div>
-        <h1 className="text-3xl font-bold">Players</h1>
-        <p className="text-slate-400 text-sm">
-          Browse and filter available players
-        </p>
-      </div>
+        {/* HERO */}
+        <div className="mb-10">
+          <h1 className="text-4xl lg:text-5xl font-black tracking-tight mb-3">
+            Find your next <span className="text-red-500">teammate</span>
+          </h1>
 
-      {/*  Filter Bar */}
-      <div className="bg-[#14120e] border border-[#1f1d18] 
-        rounded-xl p-5">
-
-        <div className="flex flex-wrap gap-6 items-end">
-
-          {/* Search */}
-          <div className="flex flex-col">
-            <label className="text-xs uppercase text-slate-400 mb-1">
-              Player Name
-            </label>
-            <input
-              type="text"
-              name="NAME"
-              placeholder="Search player..."
-              value={filters.NAME}
-              onChange={handleChange}
-              className="bg-[#1f1d18] border border-[#2c2922] 
-                rounded-lg px-3 py-2 w-56 text-sm 
-                focus:outline-none focus:ring-2 
-                focus:ring-red-500"
-            />
-          </div>
-
-          {/* Role */}
-          <div className="flex flex-col">
-            <label className="text-xs uppercase text-slate-400 mb-1">
-              Role
-            </label>
-            <select
-              name="ROLE"
-              value={filters.ROLE}
-              onChange={handleChange}
-              className="bg-[#1f1d18] border border-[#2c2922] 
-                rounded-lg px-3 py-2 text-sm 
-                focus:outline-none focus:ring-2 
-                focus:ring-red-500"
-            >
-              <option value="">All Roles</option>
-              <option value="Carry">Carry</option>
-              <option value="Mid">Mid</option>
-              <option value="Offlane">Offlane</option>
-              <option value="Support">Support</option>
-            </select>
-          </div>
-
-          {/* Min MMR */}
-          <div className="flex flex-col">
-            <label className="text-xs uppercase text-slate-400 mb-1">
-              Min MMR
-            </label>
-            <input
-              type="number"
-              name="MIN_MMR"
-              value={filters.MIN_MMR}
-              onChange={handleChange}
-              placeholder="0"
-              className="bg-[#1f1d18] border border-[#2c2922] 
-                rounded-lg px-3 py-2 w-24 text-sm 
-                focus:outline-none focus:ring-2 
-                focus:ring-red-500"
-            />
-          </div>
-
-          {/* Max MMR */}
-          <div className="flex flex-col">
-            <label className="text-xs uppercase text-slate-400 mb-1">
-              Max MMR
-            </label>
-            <input
-              type="number"
-              name="MAX_MMR"
-              value={filters.MAX_MMR}
-              onChange={handleChange}
-              placeholder="10000"
-              className="bg-[#1f1d18] border border-[#2c2922] 
-                rounded-lg px-3 py-2 w-24 text-sm 
-                focus:outline-none focus:ring-2 
-                focus:ring-red-500"
-            />
-          </div>
-
-          {/* LFT Status */}
-          <div className="flex flex-col">
-            <label className="text-xs uppercase text-slate-400 mb-1">
-              Status
-            </label>
-            <select
-              value={filters.LFT ?? ""}
-              onChange={(e) =>
-                setFilters((prev) => ({
-                  ...prev,
-                  LFT:
-                    e.target.value === ""
-                      ? null
-                      : e.target.value === "true",
-                }))
-              }
-              className="bg-[#1f1d18] border border-[#2c2922] 
-                rounded-lg px-3 py-2 text-sm 
-                focus:outline-none focus:ring-2 
-                focus:ring-red-500"
-            >
-              <option value="">All Players</option>
-              <option value="true">Looking For Team</option>
-              <option value="false">Not Looking</option>
-            </select>
-          </div>
-
+          <p className="text-slate-400 text-sm lg:text-base max-w-2xl">
+            Browse active players, filter by role and MMR, and invite talent
+            that fits your team’s competitive goals.
+          </p>
         </div>
-      </div>
 
-      {/* 🔥 Player Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
+        {/* FILTER TOOLBAR */}
+        <div className="mb-10 rounded-2xl border border-red-500/10 bg-red-500/[0.04] p-4">
+
+          {/* Top Row */}
+          <div className="flex flex-col lg:flex-row gap-4">
+
+            {/* Search */}
+            <div className="relative flex-1">
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500">
+                🔎
+              </span>
+
+              <input
+                type="text"
+                name="NAME"
+                placeholder="Search by player name..."
+                value={filters.NAME}
+                onChange={handleChange}
+                className="w-full rounded-xl border border-red-500/10 bg-[#18130d] py-3 pl-12 pr-4 text-sm text-white placeholder:text-slate-500 outline-none transition focus:border-red-500/40"
+              />
+            </div>
+
+            {/* MMR + LFT */}
+            <div className="flex flex-wrap gap-3">
+
+              <input
+                type="number"
+                name="MIN_MMR"
+                placeholder="Min MMR"
+                value={filters.MIN_MMR}
+                onChange={handleChange}
+                className="w-28 rounded-xl border border-red-500/10 bg-[#18130d] px-4 py-3 text-sm text-white placeholder:text-slate-500 outline-none transition focus:border-red-500/40"
+              />
+
+              <input
+                type="number"
+                name="MAX_MMR"
+                placeholder="Max MMR"
+                value={filters.MAX_MMR}
+                onChange={handleChange}
+                className="w-28 rounded-xl border border-red-500/10 bg-[#18130d] px-4 py-3 text-sm text-white placeholder:text-slate-500 outline-none transition focus:border-red-500/40"
+              />
+
+              <select
+                value={filters.LFT ?? ""}
+                onChange={(e) =>
+                  setFilters((prev) => ({
+                    ...prev,
+                    LFT:
+                      e.target.value === ""
+                        ? null
+                        : e.target.value === "true",
+                  }))
+                }
+                className="rounded-xl border border-red-500/10 bg-[#18130d] px-4 py-3 text-sm text-white outline-none transition focus:border-red-500/40"
+              >
+                <option value="">All Players</option>
+                <option value="true">Looking For Team</option>
+                <option value="false">Not Looking</option>
+              </select>
+            </div>
+          </div>
+
+          {/* ROLE FILTER */}
+          <div className="mt-5">
+            <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.2em] text-slate-500">
+              Preferred Role
+            </p>
+
+            <div className="flex flex-wrap gap-3">
+              {roles.map((role) => (
+                <button
+                  key={role}
+                  onClick={() =>
+                    setFilters((prev) => ({
+                      ...prev,
+                      ROLE: prev.ROLE === role ? "" : role,
+                    }))
+                  }
+                  className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm transition ${
+                    filters.ROLE === role
+                      ? "border-red-500 bg-red-500 text-white"
+                      : "border-red-500/10 bg-[#18130d] text-slate-300 hover:border-red-500/40"
+                  }`}
+                >
+                  <span>{roleIcons[role]}</span>
+                  {role}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* PLAYER GRID */}
         <PlayerList FILTERS={filters} />
-      </div>
 
+      </div>
     </div>
   );
 };

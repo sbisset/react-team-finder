@@ -54,43 +54,55 @@ export const getTeamDetail = async (id)=>{
 
 
 
-export const getPlayerList = async (FILTERS={},customUrl=null) => {
-    const user = localStorage.getItem('access_token');
-    let url;
-    
-    if (customUrl) {
-        url = customUrl;
-        console.log(url)
-    } else {
-        const { LFT,NAME,REGION,MIN_MMR,MAX_MMR } = FILTERS;
-        const params = new URLSearchParams();
+export const getPlayerList = async (FILTERS = {}, customUrl = null) => {
+  const user = localStorage.getItem("access_token");
+  let url;
 
-        if (LFT !== undefined ) params.append("looking_for_team", LFT);
-        if (REGION) params.append("region", REGION);
-        if (MIN_MMR) params.append("min_mmr", MIN_MMR);
-        if (MAX_MMR) params.append("max_mmr", MAX_MMR);
-        if (NAME) params.append("username", NAME);
-        
-        
-        url = params.toString()
-            ? `${BASE_URL}players/?${params}`
-            : `${BASE_URL}players/`;
-        console.log(url)
+  if (customUrl) {
+    url = customUrl;
+    console.log(url);
+  } else {
+    const { LFT, NAME, REGION, MIN_MMR, MAX_MMR, ROLE } = FILTERS;
+    const params = new URLSearchParams();
+
+    if (LFT !== undefined && LFT !== null) {
+      params.append("looking_for_team", LFT);
     }
-        console.log(url)
-        const response = await fetch(url,{
-            method:"GET",
-        headers: {
-            "Content-Type":"application/json",
-            "Authorization": `Bearer ${user}`
-        }
-        })
-        console.log(response)
-        const players = await response.json()
-        console.log(players)
-        
-        return players
-    }
+
+    if (REGION) params.append("region", REGION);
+    if (MIN_MMR) params.append("min_mmr", MIN_MMR);
+    if (MAX_MMR) params.append("max_mmr", MAX_MMR);
+    if (NAME) params.append("username", NAME);
+    if (ROLE) params.append("role", ROLE);
+
+    url = params.toString()
+      ? `${BASE_URL}players/?${params.toString()}`
+      : `${BASE_URL}players/`;
+
+    console.log(url);
+  }
+
+  console.log(url);
+
+  const response = await fetch(url, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${user}`,
+    },
+  });
+
+  console.log(response);
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch players");
+  }
+
+  const players = await response.json();
+  console.log(players);
+
+  return players;
+};
     
 
 export const getPlayerDetail = async (id)=>{
