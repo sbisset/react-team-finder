@@ -310,7 +310,7 @@ const Dashboard = () => {
                         <img
                           src={hero.icon}
                           alt={hero.name?.localized_name || "Hero"}
-                          className="h-full w-full object-cover grayscale transition group-hover:grayscale-0"
+                          className="h-full w-full object-cover transition group-hover:grayscale-0"
                         />
                         <div className="absolute bottom-0 w-full bg-gradient-to-t from-black to-transparent p-2">
                           <p className="text-xs font-bold text-white">

@@ -101,7 +101,7 @@ const TeamManagement = () => {
   if (!team) return null;
 
   return (
-    <div className="min-h-screen bg-[#0c0c0c] text-white px-10 py-10">
+    <div className="min-h-screen  text-white px-10 py-10">
       {/* Header Card */}
       <div className="bg-[#141414] p-6 rounded-xl border border-red-900/20 flex flex-col lg:flex-row lg:items-center lg:justify-between mb-10">
         <div className="flex items-center gap-4">

@@ -43,7 +43,7 @@ const CreateTeam = () => {
   };
 
   return (
-    <div className="max-w-xl mx-auto p-6 bg-[#121212] rounded-xl border border-slate-700 text-white">
+    <div className="max-w-xl mx-auto p-6  rounded-xl border border-slate-700 text-white">
 
       <h1 className="text-2xl font-bold mb-6">Create Team</h1>
 

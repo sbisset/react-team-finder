@@ -46,7 +46,7 @@ const PlayerDetail = () => {
   if (!player) return null;
 
   return (
-    <div className="min-h-screen bg-background-dark text-slate-100 px-6 py-8">
+    <div className="min-h-screen  text-slate-100 px-6 py-8">
       <div className="max-w-6xl mx-auto space-y-8">
 
         {/* Profile Header */}

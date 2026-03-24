@@ -36,7 +36,7 @@ const PlayersPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#0f0d08] text-white">
+    <div className="min-h-screen  text-white">
       <div className="max-w-7xl mx-auto px-6 py-10 lg:px-10">
 
         {/* HERO */}

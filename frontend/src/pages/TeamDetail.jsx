@@ -50,7 +50,7 @@ const TeamDetail = () => {
       : null;
 
   return (
-    <div className="min-h-screen bg-[#0c0c0c] text-white px-6 py-10">
+    <div className="min-h-screen  text-white px-6 py-10">
 
       {/* TEAM HERO */}
       <div className="bg-gradient-to-r from-[#1a1a1a] to-[#111] border border-red-900/30 rounded-xl p-6 flex flex-col md:flex-row gap-6 items-center shadow-lg mb-10">

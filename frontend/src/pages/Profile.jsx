@@ -103,7 +103,7 @@ const Profile = () => {
       : 0;
 
   return (
-    <div className="min-h-screen bg-background-dark text-slate-100 px-6 py-8">
+    <div className="min-h-screen  text-slate-100 px-6 py-8">
       <div className="max-w-2xl mx-auto space-y-8">
         {/* Profile Header */}
         <div className="bg-card-dark border border-border-dark rounded-xl p-6 flex items-center gap-6">
