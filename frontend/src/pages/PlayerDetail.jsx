@@ -68,9 +68,8 @@ const PlayerDetail = () => {
               <div className="flex items-center gap-3 flex-wrap">
                 <h2 className="text-3xl font-bold">{player.user?.username}</h2>
                 {player.steam_verified && (
-                  <span className="px-2 py-0.5 bg-primary/20 text-primary text-xs font-bold uppercase rounded">
-                    Verified
-                  </span>
+                  <span className="px-2 py-0.5 bg-green-200 text-green-800 text-xs font-bold uppercase rounded "> Verified </span>
+
                 )}
               </div>
 

@@ -56,7 +56,7 @@ def update_player_dota_stats(player):
         print(data)
 
         # MMR estimate
-        mmr_estimate = data.get("mmr_estimate", {}).get("estimate")
+        mmr_estimate = data.get("computed_mmr")
         if mmr_estimate is not None:
             player.mmr = mmr_estimate
 

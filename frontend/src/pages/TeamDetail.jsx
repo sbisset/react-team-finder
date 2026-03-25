@@ -175,7 +175,7 @@ const TeamDetail = () => {
 
               <div>
                 <div className="text-gray-500">Region</div>
-                <div className="font-semibold">{team.region}</div>
+                <div className="font-semibold">{regionList[team.region]}</div>
               </div>
 
               <div>
