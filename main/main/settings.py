@@ -168,8 +168,8 @@ SOCIAL_AUTH_LOGIN_REDIRECT_URL = config(
     default="http://localhost:5173/dashboard?steam=connected"
 )
 
-SESSION_COOKIE_SAMESITE = "Lax"
-SESSION_COOKIE_SECURE = not DEBUG
-CSRF_COOKIE_SECURE = not DEBUG
+SESSION_COOKIE_SAMESITE = "None"
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"

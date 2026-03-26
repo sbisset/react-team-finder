@@ -783,6 +783,7 @@ from django.shortcuts import redirect
 @permission_classes([IsAuthenticated])
 def connect_steam(request):
     request.session["steam_connect_user_id"] = request.user.id
+    request.session.modified = True
     return Response({"detail": "Ready"})
 
 def steam_success(request):
