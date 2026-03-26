@@ -70,17 +70,20 @@ const connectSteam = async () => {
   const toastId = toast.loading("Connecting to Steam...");
 
   try {
-    const res = await fetch(`${STEAM_BASE}/auth/steam/connect/`, {
+    const token = localStorage.getItem("access_token");
+
+    const res = await fetch(`${STEAM_BASE}/api/auth/steam/connect/`, {
       method: "GET",
       headers: {
-        Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+        Authorization: `Bearer ${token}`,
       },
       credentials: "include",
     });
 
+    const text = await res.text();
+    console.log("Steam connect response:", res.status, text);
+
     if (!res.ok) {
-      const text = await res.text();
-      console.error("Steam init failed:", text);
       toast.error("Failed to start Steam connection", { id: toastId });
       return;
     }
@@ -91,6 +94,7 @@ const connectSteam = async () => {
     console.error(err);
     toast.error("Steam connection failed", { id: toastId });
   }
+};
 };
   /* ---------------- LEAVE TEAM ---------------- */
 
