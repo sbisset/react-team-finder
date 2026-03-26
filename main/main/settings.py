@@ -178,7 +178,10 @@ CORS_ALLOWED_ORIGINS = [
 ]
 
 from corsheaders.defaults import default_headers
+FRONTEND_URL = config("FRONTEND_URL", default="http://localhost:5173")
 
+CORS_ALLOWED_ORIGINS = [FRONTEND_URL]
+CSRF_TRUSTED_ORIGINS = [FRONTEND_URL]
 CORS_ALLOW_HEADERS = list(default_headers) + [
     "authorization",
 ]
