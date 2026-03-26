@@ -32,3 +32,13 @@ steamid-converter==1.0.1
 tzdata==2025.3
 urllib3==2.6.3
 whitenoise==6.12.0
+django-cors-headers
+whitenoise
+gunicorn
+dj-database-url
+psycopg2-binary
+python-decouple
+django-filter
+social-auth-app-django
+djangorestframework
+djangorestframework-simplejwt
