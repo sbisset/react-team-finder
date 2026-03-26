@@ -776,7 +776,8 @@ def confirm_password_reset(request, uidb64, token):
 
     return Response({"detail": "Password reset successful"})
 
-
+from decouple import config
+from django.shortcuts import redirect
 
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
@@ -785,7 +786,12 @@ def connect_steam(request):
     return Response({"detail": "Ready"})
 
 def steam_success(request):
-    return redirect("http://localhost:5173/dashboard?steam=connected")
+    return redirect(
+        config(
+            "SOCIAL_AUTH_LOGIN_REDIRECT_URL",
+            default="https://dotateamfinder.netlify.app/dashboard?steam=connected"
+        )
+    )
 
 from .services import get_hero_stats,get_win_loss
 

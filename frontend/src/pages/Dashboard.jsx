@@ -64,30 +64,34 @@ const Dashboard = () => {
 
   /* ---------------- STEAM CONNECT ---------------- */
 
-  const connectSteam = async () => {
-    const toastId = toast.loading("Connecting to Steam...");
+const STEAM_BASE = import.meta.env.VITE_STEAM_URL;
 
-    try {
-      const res = await fetch(`${STEAM_BASE}api/auth/steam/connect/`, {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("access_token")}`,
-        },
-        credentials: "include",
-      });
+const connectSteam = async () => {
+  const toastId = toast.loading("Connecting to Steam...");
 
-      if (res.ok) {
-        toast.success("Redirecting to Steam...", { id: toastId });
-        window.location.href = `${STEAM_BASE}auth/steam/login/steam/`;
-      } else {
-        toast.error("Failed to start Steam connection", { id: toastId });
-      }
-    } catch (err) {
-      console.error(err);
-      toast.error("Steam connection failed", { id: toastId });
+  try {
+    const res = await fetch(`${STEAM_BASE}/auth/steam/connect/`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+      },
+      credentials: "include",
+    });
+
+    if (!res.ok) {
+      const text = await res.text();
+      console.error("Steam init failed:", text);
+      toast.error("Failed to start Steam connection", { id: toastId });
+      return;
     }
-  };
 
+    toast.success("Redirecting to Steam...", { id: toastId });
+    window.location.href = `${STEAM_BASE}/auth/login/steam/`;
+  } catch (err) {
+    console.error(err);
+    toast.error("Steam connection failed", { id: toastId });
+  }
+};
   /* ---------------- LEAVE TEAM ---------------- */
 
   const handleLeave = async (id) => {
