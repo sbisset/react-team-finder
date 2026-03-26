@@ -81,7 +81,7 @@ const connectSteam = async () => {
     });
 
     const text = await res.text();
-    console.log("Steam connect response:", res.status, text);
+    console.log("Steam init response:", res.status, text);
 
     if (!res.ok) {
       toast.error("Failed to start Steam connection", { id: toastId });
@@ -95,7 +95,8 @@ const connectSteam = async () => {
     toast.error("Steam connection failed", { id: toastId });
   }
 };
-};
+
+
   /* ---------------- LEAVE TEAM ---------------- */
 
   const handleLeave = async (id) => {
