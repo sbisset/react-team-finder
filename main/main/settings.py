@@ -68,7 +68,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-   
+  
     
     'django.middleware.common.CommonMiddleware',
 ]
@@ -216,10 +216,6 @@ SOCIAL_AUTH_LOGIN_REDIRECT_URL = "http://localhost:5173/dashboard?steam=connecte
 
 STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 
-MIDDLEWARE = [
-    "django.middleware.security.SecurityMiddleware",
-    "whitenoise.middleware.WhiteNoiseMiddleware",
-    ...
-]
+
 
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
