@@ -36,7 +36,7 @@ django-cors-headers
 whitenoise
 gunicorn
 dj-database-url
-psycopg2-binary
+psycopg[binary]
 python-decouple
 django-filter
 social-auth-app-django
