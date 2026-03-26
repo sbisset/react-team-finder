@@ -89,7 +89,7 @@ const connectSteam = async () => {
     }
 
     toast.success("Redirecting to Steam...", { id: toastId });
-    window.location.href = `${STEAM_BASE}/auth/login/steam/`;
+    window.location.href = `${STEAM_BASE}/auth/steam/login/steam/`;
   } catch (err) {
     console.error(err);
     toast.error("Steam connection failed", { id: toastId });
