@@ -14,6 +14,8 @@ from pathlib import Path
 from datetime import timedelta
 from decouple import config
 import dj_database_url
+import os
+import dj_database_url
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -28,7 +30,14 @@ SECRET_KEY = config("DJANGO_SECRET_KEY", default="dev-secret-key")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = DEBUG = config("DEBUG", default=True, cast=bool)
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    "localhost",
+    "127.0.0.1",
+]
+
+RENDER_HOST = config("RENDER_EXTERNAL_HOSTNAME")
+if RENDER_HOST:
+    ALLOWED_HOSTS.append(RENDER_HOST)
 
 
 # Application definition
@@ -90,10 +99,9 @@ WSGI_APPLICATION = 'main.wsgi.application'
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+   "default": dj_database_url.config(
+        default=os.environ.get("DATABASE_URL")
+   )
 }
 
 
@@ -165,7 +173,8 @@ SIMPLE_JWT = {
 
 
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",
+    config("FRONTEND_URL")
+
 ]
 
 from corsheaders.defaults import default_headers
@@ -202,3 +211,15 @@ SOCIAL_AUTH_STEAM_API_KEY = config("STEAM_API_KEY")
 LOGIN_URL = "http://localhost:5173/login"
 LOGIN_REDIRECT_URL = "http://localhost:5173/dashboard?steam=connected"
 SOCIAL_AUTH_LOGIN_REDIRECT_URL = "http://localhost:5173/dashboard?steam=connected"
+
+
+
+STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
+
+MIDDLEWARE = [
+    "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
+    ...
+]
+
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"

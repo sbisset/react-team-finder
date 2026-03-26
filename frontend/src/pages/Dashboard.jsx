@@ -13,9 +13,10 @@ const STATUS_COLORS = {
   3: "text-red-400",
 };
 
+const STEAM_BASE = import.meta.env.VITE_STEAM_URL;
+
 const Dashboard = () => {
   const { user, logout } = useAuth();
-
   const [teams, setTeams] = useState([]);
   const [dashboardData, setDashboardData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -67,7 +68,7 @@ const Dashboard = () => {
     const toastId = toast.loading("Connecting to Steam...");
 
     try {
-      const res = await fetch("http://localhost:8000/api/auth/steam/connect/", {
+      const res = await fetch(`${STEAM_BASE}api/auth/steam/connect/`, {
         method: "GET",
         headers: {
           Authorization: `Bearer ${localStorage.getItem("access_token")}`,
@@ -77,7 +78,7 @@ const Dashboard = () => {
 
       if (res.ok) {
         toast.success("Redirecting to Steam...", { id: toastId });
-        window.location.href = "http://localhost:8000/auth/steam/login/steam/";
+        window.location.href = `${STEAM_BASE}auth/steam/login/steam/`;
       } else {
         toast.error("Failed to start Steam connection", { id: toastId });
       }

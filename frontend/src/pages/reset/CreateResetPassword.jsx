@@ -19,7 +19,7 @@ function ResetPassword() {
 
     try {
       const res = await fetch(
-        `http://localhost:8000/api/auth/password-reset-confirm/${uid}/${token}/`,
+        `${BASE_URL}auth/password-reset-confirm/${uid}/${token}/`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
