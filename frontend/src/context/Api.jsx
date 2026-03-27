@@ -22,8 +22,8 @@ export const getTeamList = async (FILTERS = {}, customUrl = null) => {
         if (ROLE) params.append("role", ROLE);
 
         url = params.toString()
-            ? `http://localhost:8000/api/teams/?${params}`
-            : `http://localhost:8000/api/teams/`;
+            ? `${BASE_URL}teams/?${params}`
+            : `${BASE_URL}teams/`;
     }
    
     const response = await fetch(url,{
