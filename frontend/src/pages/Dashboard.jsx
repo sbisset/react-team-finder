@@ -367,7 +367,7 @@ const connectSteam = async () => {
                     <div className="mb-4 flex items-start justify-between gap-3">
                       <div>
                         <h3 className="text-lg font-bold text-white">
-                          {team.owner_id === user.id ? (
+                          {team.owner.id === user.id ? (
                             <Link
                               to={`/manage/${team.id}`}
                               className="text-red-500 hover:underline"
