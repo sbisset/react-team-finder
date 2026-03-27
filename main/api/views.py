@@ -416,14 +416,7 @@ class TeamApplicationViewSet(viewsets.ModelViewSet):
 
             with transaction.atomic():
 
-                # Prevent player joining multiple teams
-                if TeamMembership.objects.filter(
-                    player=application.player
-                ).exists():
-                    return Response(
-                        {"detail": "Player is already on a team."},
-                        status=status.HTTP_400_BAD_REQUEST
-                    )
+                
 
                 # Prevent multiple players filling same role
                 if TeamMembership.objects.filter(
