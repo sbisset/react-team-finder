@@ -771,37 +771,27 @@ def confirm_password_reset(request, uidb64, token):
 
 from decouple import config
 from django.shortcuts import redirect
+from .services import get_hero_stats,get_win_loss
 
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def connect_steam(request):
-    print("CONNECT_STEAM called for user:", request.user.id)
     request.session["steam_connect_user_id"] = request.user.id
-    request.session.modified = True
-    print("CONNECT_STEAM session key set:", request.session.get("steam_connect_user_id"))
     return Response({"detail": "Ready"})
 
-def steam_success(request):
-    return redirect(
-        config(
-            "SOCIAL_AUTH_LOGIN_REDIRECT_URL",
-            default="https://dotateamfinder.netlify.app/dashboard?steam=connected"
-        )
-    )
 
-from .services import get_hero_stats,get_win_loss
+def steam_success(request):
+    return redirect("http://localhost:5173/dashboard?steam=connected")
+
 
 @api_view(["POST"])
-@permission_classes([IsAuthenticated])
 def refresh_top_heroes(request):
     player = request.user.player
-    update_player_dota_stats(player)
     get_hero_stats(player)
     get_win_loss(player)
     return Response({
         "status": "updated",
         "top_heroes": player.top_heroes,
         "wins": player.wins,
-        "losses": player.losses,
-        "mmr": player.mmr,
+        "losses": player.losses
     })
