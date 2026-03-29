@@ -792,9 +792,16 @@ def steam_success(request):
 from .services import get_hero_stats,get_win_loss
 
 @api_view(["POST"])
+@permission_classes([IsAuthenticated])
 def refresh_top_heroes(request):
     player = request.user.player
+    update_player_dota_stats(player)
     get_hero_stats(player)
     get_win_loss(player)
-    return Response({"status":"updated","top_heroes":player.top_heroes,"wins":player.wins,"losses":player.losses})
-
+    return Response({
+        "status": "updated",
+        "top_heroes": player.top_heroes,
+        "wins": player.wins,
+        "losses": player.losses,
+        "mmr": player.mmr,
+    })
