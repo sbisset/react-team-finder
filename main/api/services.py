@@ -21,19 +21,16 @@ def get_steam_profile(steam_id):
 def get_hero_map():
     hero_map = cache.get("hero_map")
     if hero_map is None:
-        heroes_list = requests.get("https://api.opendota.com/api/heroes", timeout=10).json()
+        heroes_list = requests.get("https://api.opendota.com/api/heroes").json()
         hero_map = {}
-
         for h in heroes_list:
             internal = h["name"].replace("npc_dota_hero_", "")
             hero_map[h["id"]] = {
                 "name": h["localized_name"],
-                "icon": f"https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/{internal}.png",
-                "full": f"https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/{internal}.png",
+                "icon": f"https://cdn.dota2.com/apps/dota2/images/heroes/{internal}_sb.png",
+                "full": f"https://cdn.dota2.com/apps/dota2/images/heroes/{internal}_full.png"
             }
-
         cache.set("hero_map", hero_map, timeout=86400)
-
     return hero_map
 
 
@@ -75,36 +72,36 @@ def update_player_dota_stats(player):
 def get_hero_stats(player):
     if not player.steam_id:
         return None
-
-    steam32_formatted = Converter.to_steamID3(player.steam_id)
+    
+    id = player.steam_id
+    steam32_formatted = Converter.to_steamID3(id)
     steam32 = steam32_formatted.split(":")[2].rstrip("]")
-    url = f"{OPEN_DOTA_API}{steam32}/heroes"
+    url = f'{OPEN_DOTA_API}{steam32}/heroes'
 
     try:
-        res = requests.get(url, timeout=10)
+        res = requests.get(url)
         res.raise_for_status()
         data = res.json()
 
-        top5 = sorted(data, key=lambda x: x.get("games", 0), reverse=True)[:5]
+        top5 = sorted(data, key=lambda x: x["games"], reverse=True)[:5]
         hero_map = get_hero_map()
 
-        player.top_heroes = []
-        for h in top5:
-            hero_data = hero_map.get(h["hero_id"], {})
-            player.top_heroes.append({
-                "name": hero_data.get("name", "Unknown"),
-                "games": h.get("games", 0),
-                "wins": h.get("win", 0),
-                "icon": hero_data.get("icon"),
-                "full": hero_data.get("full"),
-            })
+        player.top_heroes = [
+            {
+                # ✅ FIXED HERE
+                "name": hero_map.get(h["hero_id"], {}).get("name", "Unknown"),
+                "games": h["games"],
+                "wins": h["win"],
+                "icon": hero_map.get(h["hero_id"], {}).get("icon"),
+                "full": hero_map.get(h["hero_id"], {}).get("full"),
+            }
+            for h in top5
+        ]
 
         player.save(update_fields=["top_heroes"])
 
     except requests.RequestException as e:
-        print(f"OpenDota hero stats error: {e}")
-    except Exception as e:
-        print(f"Hero stats parse error: {e}")
+        print(f"OpenDota error: {e}")
 
 def get_win_loss(player):
     if not player.steam_id:
