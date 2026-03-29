@@ -1,3 +1,4 @@
+from django.shortcuts import redirect
 from django.contrib.auth import get_user_model
 from .models import Player
 from .services import update_player_dota_stats, get_hero_stats, get_win_loss
@@ -15,14 +16,12 @@ def link_steam_account(backend, user, response, request, *args, **kwargs):
 
     User = get_user_model()
     connect_user = User.objects.get(id=connect_user_id)
-    player, _ = Player.objects.get_or_create(user=connect_user)
+    player = connect_user.player
 
     if player.steam_id:
-        request.session.pop("steam_connect_user_id", None)
         return
 
     if Player.objects.filter(steam_id=steam_id).exclude(user=connect_user).exists():
-        request.session.pop("steam_connect_user_id", None)
         return
 
     player.steam_id = steam_id
@@ -30,19 +29,8 @@ def link_steam_account(backend, user, response, request, *args, **kwargs):
     player.steam_community = f"https://steamcommunity.com/profiles/{steam_id}"
     player.save()
 
-    try:
-        update_player_dota_stats(player)
-    except Exception as e:
-        print(f"update_player_dota_stats failed: {e}")
+    update_player_dota_stats(player)
+    get_hero_stats(player)
+    get_win_loss(player)
 
-    try:
-        get_hero_stats(player)
-    except Exception as e:
-        print(f"get_hero_stats failed: {e}")
-
-    try:
-        get_win_loss(player)
-    except Exception as e:
-        print(f"get_win_loss failed: {e}")
-
-    request.session.pop("steam_connect_user_id", None)
+    del request.session["steam_connect_user_id"]

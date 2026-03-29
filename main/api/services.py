@@ -67,7 +67,6 @@ def update_player_dota_stats(player):
 
     
 
-    
 
 def get_hero_stats(player):
     if not player.steam_id:
@@ -77,7 +76,6 @@ def get_hero_stats(player):
     steam32_formatted = Converter.to_steamID3(id)
     steam32 = steam32_formatted.split(":")[2].rstrip("]")
     url = f'{OPEN_DOTA_API}{steam32}/heroes'
-
     try:
         res = requests.get(url)
         res.raise_for_status()
@@ -88,7 +86,6 @@ def get_hero_stats(player):
 
         player.top_heroes = [
             {
-                # ✅ FIXED HERE
                 "name": hero_map.get(h["hero_id"], {}).get("name", "Unknown"),
                 "games": h["games"],
                 "wins": h["win"],
