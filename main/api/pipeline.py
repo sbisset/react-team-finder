@@ -1,5 +1,3 @@
-# pipeline.py
-
 from django.shortcuts import redirect
 from django.contrib.auth import get_user_model
 from .models import Player
@@ -32,9 +30,20 @@ def link_steam_account(backend, user, response, request, *args, **kwargs):
     player.steam_verified = True
     player.steam_community = f"https://steamcommunity.com/profiles/{steam_id}"
     player.save()
-    
-    update_player_dota_stats(player)
-    get_hero_stats(player)
-    get_win_loss(player)
 
-    del request.session["steam_connect_user_id"]
+    try:
+        update_player_dota_stats(player)
+    except Exception as e:
+        print(f"update_player_dota_stats error: {e}")
+
+    try:
+        get_hero_stats(player)
+    except Exception as e:
+        print(f"get_hero_stats error: {e}")
+
+    try:
+        get_win_loss(player)
+    except Exception as e:
+        print(f"get_win_loss error: {e}")
+
+    request.session.pop("steam_connect_user_id", None)
