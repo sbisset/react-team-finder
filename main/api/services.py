@@ -21,16 +21,19 @@ def get_steam_profile(steam_id):
 def get_hero_map():
     hero_map = cache.get("hero_map")
     if hero_map is None:
-        heroes_list = requests.get("https://api.opendota.com/api/heroes").json()
+        heroes_list = requests.get("https://api.opendota.com/api/heroes", timeout=10).json()
         hero_map = {}
+
         for h in heroes_list:
             internal = h["name"].replace("npc_dota_hero_", "")
             hero_map[h["id"]] = {
                 "name": h["localized_name"],
-                "icon": f"https://cdn.dota2.com/apps/dota2/images/heroes/{internal}_sb.png",     # official small icon
-                "full": f"https://cdn.dota2.com/apps/dota2/images/heroes/{internal}_full.png"   # official portrait
+                "icon": f"https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/{internal}.png",
+                "full": f"https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/{internal}.png",
             }
+
         cache.set("hero_map", hero_map, timeout=86400)
+
     return hero_map
 
 
