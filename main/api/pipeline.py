@@ -1,18 +1,18 @@
 from django.contrib.auth import get_user_model
 from .models import Player
-from .services import update_player_dota_stats, get_hero_stats, get_win_loss
-
 
 def link_steam_account(backend, user, response, request, *args, **kwargs):
     if backend.name != "steam":
         return
 
     connect_user_id = request.session.get("steam_connect_user_id")
+    print("PIPELINE connect_user_id:", connect_user_id)
     if not connect_user_id:
         return
 
     steam_url = response.identity_url
     steam_id = steam_url.split("/")[-1]
+    print("PIPELINE steam_id:", steam_id)
 
     User = get_user_model()
     connect_user = User.objects.get(id=connect_user_id)
@@ -28,9 +28,5 @@ def link_steam_account(backend, user, response, request, *args, **kwargs):
     player.steam_verified = True
     player.steam_community = f"https://steamcommunity.com/profiles/{steam_id}"
     player.save()
-
-    update_player_dota_stats(player)
-    get_hero_stats(player)
-    get_win_loss(player)
 
     del request.session["steam_connect_user_id"]
