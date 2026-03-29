@@ -787,7 +787,12 @@ def connect_steam(request):
 
 
 def steam_success(request):
-    return redirect("http://localhost:5173/dashboard?steam=connected")
+    return redirect(
+        config(
+            "SOCIAL_AUTH_LOGIN_REDIRECT_URL",
+            default="https://dotateamfinder.netlify.app/dashboard?steam=connected"
+        )
+    )
 
 
 @api_view(["POST"])
