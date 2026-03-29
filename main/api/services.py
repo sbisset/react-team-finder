@@ -1,12 +1,12 @@
-import os 
+import os
 import requests
 from decouple import config
 from steamid_converter import Converter
 from django.core.cache import cache
+
 STEAM_API_KEY = config("STEAM_API_KEY")
-
-
 OPEN_DOTA_API = "https://api.opendota.com/api/players/"
+
 
 def get_steam_profile(steam_id):
     url = f"http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v2/?key={STEAM_API_KEY}&steamids={steam_id}"
@@ -38,14 +38,20 @@ def update_player_dota_stats(player):
     if not player.steam_id:
         return None
 
-    try:
-        steam32_formatted = Converter.to_steamID3(player.steam_id)
-        steam32 = steam32_formatted.split(":")[2].rstrip("]")
-        url = f"{OPEN_DOTA_API}{steam32}"
+    id = player.steam_id
+    print(id)
+    steam32_formatted = Converter.to_steamID3(id)
+    print(steam32_formatted)
+    steam32 = steam32_formatted.split(":")[2].rstrip("]")
+    print(steam32)
+    url = f"{OPEN_DOTA_API}{steam32}"
+    print(url)
 
-        resp = requests.get(url, timeout=10)
+    try:
+        resp = requests.get(url)
         resp.raise_for_status()
         data = resp.json()
+        print(data)
 
         mmr_estimate = data.get("computed_mmr")
         if mmr_estimate is not None:
@@ -61,21 +67,17 @@ def update_player_dota_stats(player):
     except requests.RequestException as e:
         print(f"[OpenDota] Failed to fetch stats for SteamID {player.steam_id}: {e}")
         return None
-    except Exception as e:
-        print(f"[OpenDota] Parse error for SteamID {player.steam_id}: {e}")
-        return None
-
-    
 
 
 def get_hero_stats(player):
     if not player.steam_id:
         return None
-    
+
     id = player.steam_id
     steam32_formatted = Converter.to_steamID3(id)
     steam32 = steam32_formatted.split(":")[2].rstrip("]")
-    url = f'{OPEN_DOTA_API}{steam32}/heroes'
+    url = f"{OPEN_DOTA_API}{steam32}/heroes"
+
     try:
         res = requests.get(url)
         res.raise_for_status()
@@ -100,13 +102,16 @@ def get_hero_stats(player):
     except requests.RequestException as e:
         print(f"OpenDota error: {e}")
 
+
 def get_win_loss(player):
     if not player.steam_id:
-         return None
+        return None
+
     id = player.steam_id
     steam32_formatted = Converter.to_steamID3(id)
     steam32 = steam32_formatted.split(":")[2].rstrip("]")
-    url = f'{OPEN_DOTA_API}{steam32}/wl'
+    url = f"{OPEN_DOTA_API}{steam32}/wl"
+
     try:
         resp = requests.get(url)
         resp.raise_for_status()
@@ -119,8 +124,8 @@ def get_win_loss(player):
             player.wins = wins
         if losses is not None:
             player.losses = losses
-    
-        player.save(update_fields=["wins","losses"])
+
+        player.save(update_fields=["wins", "losses"])
 
     except requests.RequestException as e:
         print(f"OpenDota error: {e}")
