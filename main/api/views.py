@@ -772,18 +772,12 @@ def confirm_password_reset(request, uidb64, token):
 from decouple import config
 from django.shortcuts import redirect
 
-@api_view(["POST"])
+@api_view(["GET"])
 @permission_classes([IsAuthenticated])
-def refresh_top_heroes(request):
-    player, _ = Player.objects.get_or_create(user=request.user)
-    get_hero_stats(player)
-    get_win_loss(player)
-    return Response({
-        "status": "updated",
-        "top_heroes": player.top_heroes,
-        "wins": player.wins,
-        "losses": player.losses,
-    })
+def connect_steam(request):
+    request.session["steam_connect_user_id"] = request.user.id
+    request.session.modified = True
+    return Response({"detail": "Ready"})
 
 def steam_success(request):
     return redirect(
