@@ -180,3 +180,4 @@ SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
