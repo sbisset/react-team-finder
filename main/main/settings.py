@@ -166,18 +166,12 @@ SOCIAL_AUTH_PIPELINE = (
 SOCIAL_AUTH_STEAM_API_KEY = config("STEAM_API_KEY")
 
 LOGIN_URL = config("LOGIN_URL", default="http://localhost:5173/login")
-LOGIN_REDIRECT_URL = config(
-    "LOGIN_REDIRECT_URL",
-    default="http://localhost:5173/dashboard?steam=connected"
-)
-SOCIAL_AUTH_LOGIN_REDIRECT_URL = config(
-    "SOCIAL_AUTH_LOGIN_REDIRECT_URL",
-    default="http://localhost:5173/dashboard?steam=connected"
-)
+LOGIN_REDIRECT_URL = config("LOGIN_REDIRECT_URL")
+SOCIAL_AUTH_LOGIN_REDIRECT_URL = config("SOCIAL_AUTH_LOGIN_REDIRECT_URL")
 
-SESSION_COOKIE_SAMESITE = "None"
-SESSION_COOKIE_SECURE = True
-CSRF_COOKIE_SECURE = True
+SESSION_ENGINE = "django.contrib.sessions.backends.db"
+SESSION_COOKIE_SECURE = True  # HTTPS only
+SESSION_COOKIE_SAMESITE = "Lax"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 

@@ -12,14 +12,16 @@ def link_steam_account(backend, user, response, request, *args, **kwargs):
     if backend.name != "steam":
         return
 
-    # Get user ID saved in session during connect
-    connect_user_id = request.session.get("steam_connect_user_id")
-    print("[DEBUG] SESSION connect_user_id:", connect_user_id)
-    if not connect_user_id:
-        print("[Steam Pipeline] No user ID in session; skipping link")
-        print("[DEBUG] SESSION connect_user_id:", connect_user_id)
-        return
+    print("[DEBUG] link_steam_account hit")
+    print("[DEBUG] SESSION:", dict(request.session.items()))
 
+    connect_user_id = request.session.get("steam_connect_user_id")
+    print("[DEBUG] connect_user_id:", connect_user_id)
+
+    if not connect_user_id:
+        print("[DEBUG] No connect_user_id in session!")
+        return
+    
     User = get_user_model()
     try:
         connect_user = User.objects.get(id=connect_user_id)
