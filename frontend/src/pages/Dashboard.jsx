@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { getTeamMemberships, getInvites } from "../context/AuthApi";
-import { Link, Navigate } from "react-router-dom";
+import { Link, Navigate, useSearchParams } from "react-router-dom";
 import RequestDetail from "../components/RequestDetail";
 import { leaveTeam } from "../context/DashboardApi";
 import toast from "react-hot-toast";
@@ -21,6 +21,7 @@ const Dashboard = () => {
   const [dashboardData, setDashboardData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [selectedRequest, setSelectedRequest] = useState(null);
+  const [searchParams, setSearchParams] = useSearchParams();
 
   /* ---------------- LOAD TEAMS ---------------- */
 
@@ -62,40 +63,57 @@ const Dashboard = () => {
     loadDashboard();
   }, [user]);
 
-  /* ---------------- STEAM CONNECT ---------------- */
+  /* ---------------- STEAM STATUS TOASTS ---------------- */
 
-const STEAM_BASE = import.meta.env.VITE_STEAM_URL;
+  useEffect(() => {
+    const steamStatus = searchParams.get("steam");
 
-const connectSteam = async () => {
-  const toastId = toast.loading("Connecting to Steam...");
-
-  try {
-    const token = localStorage.getItem("access_token");
-
-    const res = await fetch(`${STEAM_BASE}/api/auth/steam/connect/`, {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      credentials: "include",
-    });
-
-    const text = await res.text();
-    console.log("Steam init response:", res.status, text);
-
-    if (!res.ok) {
-      toast.error("Failed to start Steam connection", { id: toastId });
-      return;
+    if (steamStatus === "connected") {
+      toast.success("Steam account connected successfully.");
+    } else if (steamStatus === "already-linked") {
+      toast.error("That Steam account is already linked to another user.");
+    } else if (steamStatus === "missing-session") {
+      toast.error("Steam connection session expired. Please try again.");
     }
 
-    toast.success("Redirecting to Steam...", { id: toastId });
-    window.location.href = `${STEAM_BASE}/auth/steam/login/steam/`;
-  } catch (err) {
-    console.error(err);
-    toast.error("Steam connection failed", { id: toastId });
-  }
-};
+    if (steamStatus) {
+      const newParams = new URLSearchParams(searchParams);
+      newParams.delete("steam");
+      setSearchParams(newParams, { replace: true });
+    }
+  }, [searchParams, setSearchParams]);
 
+  /* ---------------- STEAM CONNECT ---------------- */
+
+  const connectSteam = async () => {
+    const toastId = toast.loading("Connecting to Steam...");
+
+    try {
+      const token = localStorage.getItem("access_token");
+
+      const res = await fetch(`${STEAM_BASE}/api/auth/steam/connect/`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        credentials: "include",
+      });
+
+      const text = await res.text();
+      console.log("Steam init response:", res.status, text);
+
+      if (!res.ok) {
+        toast.error("Failed to start Steam connection", { id: toastId });
+        return;
+      }
+
+      toast.success("Redirecting to Steam...", { id: toastId });
+      window.location.href = `${STEAM_BASE}/auth/steam/login/steam/`;
+    } catch (err) {
+      console.error(err);
+      toast.error("Steam connection failed", { id: toastId });
+    }
+  };
 
   /* ---------------- LEAVE TEAM ---------------- */
 

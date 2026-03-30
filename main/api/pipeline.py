@@ -12,15 +12,11 @@ def link_steam_account(backend, uid, response=None, *args, **kwargs):
         return
 
     connect_user_id = backend.strategy.session_get("steam_connect_user_id")
-    logger.warning("Steam link pipeline. session user id=%s, steam uid=%s", connect_user_id, uid)
+    logger.warning("session user id=%s steam uid=%s", connect_user_id, uid)
 
     if not connect_user_id:
-        logger.warning("Missing steam_connect_user_id in session")
         return redirect(
-            config(
-                "SOCIAL_AUTH_LOGIN_REDIRECT_URL",
-                default="https://dotateamfinder.netlify.app/dashboard?steam=missing-session"
-            )
+            "https://dotateamfinder.netlify.app/dashboard?steam=missing-session"
         )
 
     try:
@@ -29,7 +25,6 @@ def link_steam_account(backend, uid, response=None, *args, **kwargs):
         player, _ = Player.objects.get_or_create(user=connect_user)
 
         if Player.objects.filter(steam_id=str(uid)).exclude(user=connect_user).exists():
-            logger.warning("Steam ID already linked to another account: %s", uid)
             backend.strategy.session_pop("steam_connect_user_id")
             return redirect(
                 "https://dotateamfinder.netlify.app/dashboard?steam=already-linked"
@@ -45,7 +40,6 @@ def link_steam_account(backend, uid, response=None, *args, **kwargs):
         get_win_loss(player)
 
         backend.strategy.session_pop("steam_connect_user_id")
-        logger.warning("Steam linked successfully for app user=%s steam_id=%s", connect_user.id, uid)
 
         return redirect(
             config(
