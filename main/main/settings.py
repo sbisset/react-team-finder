@@ -150,6 +150,8 @@ AUTHENTICATION_BACKENDS = (
     "django.contrib.auth.backends.ModelBackend",
 )
 
+
+
 SOCIAL_AUTH_PIPELINE = (
     "social_core.pipeline.social_auth.social_details",
     "social_core.pipeline.social_auth.social_uid",
@@ -160,8 +162,10 @@ SOCIAL_AUTH_PIPELINE = (
     "social_core.pipeline.social_auth.associate_user",
     "social_core.pipeline.social_auth.load_extra_data",
     "social_core.pipeline.user.user_details",
-    "api.pipeline.link_steam_account",
+    "api.pipeline.link_steam_account",  # <-- Our custom step
 )
+
+
 
 SOCIAL_AUTH_STEAM_API_KEY = config("STEAM_API_KEY")
 
@@ -170,8 +174,8 @@ LOGIN_REDIRECT_URL = config("LOGIN_REDIRECT_URL")
 SOCIAL_AUTH_LOGIN_REDIRECT_URL = config("SOCIAL_AUTH_LOGIN_REDIRECT_URL")
 
 SESSION_ENGINE = "django.contrib.sessions.backends.db"
-SESSION_COOKIE_SECURE = True  # HTTPS only
-SESSION_COOKIE_SAMESITE = "Lax"
+SESSION_COOKIE_SAMESITE = "None"
+SESSION_COOKIE_SECURE = True
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
