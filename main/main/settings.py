@@ -151,12 +151,6 @@ SOCIAL_AUTH_PIPELINE = (
     "social_core.pipeline.social_auth.social_details",
     "social_core.pipeline.social_auth.social_uid",
     "social_core.pipeline.social_auth.auth_allowed",
-    "social_core.pipeline.social_auth.social_user",
-    "social_core.pipeline.user.get_username",
-    "social_core.pipeline.user.create_user",
-    "social_core.pipeline.social_auth.associate_user",
-    "social_core.pipeline.social_auth.load_extra_data",
-    "social_core.pipeline.user.user_details",
     "api.pipeline.link_steam_account",
 )
 
@@ -164,9 +158,15 @@ SOCIAL_AUTH_PIPELINE = (
 SOCIAL_AUTH_STEAM_API_KEY = config("STEAM_API_KEY")
 
 LOGIN_URL = config("LOGIN_URL", default="http://localhost:5173/login")
-LOGIN_REDIRECT_URL = config("LOGIN_REDIRECT_URL")
-SOCIAL_AUTH_LOGIN_REDIRECT_URL = config("SOCIAL_AUTH_LOGIN_REDIRECT_URL")
+LOGIN_REDIRECT_URL = config(
+    "LOGIN_REDIRECT_URL",
+    default="https://dotateamfinder.netlify.app/dashboard"
+)
 
+SOCIAL_AUTH_LOGIN_REDIRECT_URL = config(
+    "SOCIAL_AUTH_LOGIN_REDIRECT_URL",
+    default="https://dotateamfinder.netlify.app/dashboard?steam=connected"
+)
 SESSION_ENGINE = "django.contrib.sessions.backends.db"
 SESSION_COOKIE_SECURE = True
 SESSION_COOKIE_SAMESITE = "None"
