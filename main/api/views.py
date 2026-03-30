@@ -781,12 +781,18 @@ from .services import get_hero_stats, get_win_loss
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def connect_steam(request):
+    """
+    Called from frontend to start Steam connect flow.
+    Saves user ID in session for pipeline linking.
+    """
     request.session["steam_connect_user_id"] = request.user.id
     request.session.modified = True
     return Response({"detail": "Ready"})
 
-
 def steam_success(request):
+    """
+    Redirect user back to deployed frontend after Steam linking.
+    """
     return redirect(
         config(
             "SOCIAL_AUTH_LOGIN_REDIRECT_URL",
@@ -794,9 +800,12 @@ def steam_success(request):
         )
     )
 
-
 @api_view(["POST"])
+@permission_classes([IsAuthenticated])
 def refresh_top_heroes(request):
+    """
+    Manually refresh OpenDota stats.
+    """
     player = request.user.player
     get_hero_stats(player)
     get_win_loss(player)
