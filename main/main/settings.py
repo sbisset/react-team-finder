@@ -22,12 +22,7 @@ if RENDER_HOST and RENDER_HOST not in ALLOWED_HOSTS:
 
 FRONTEND_URL = config("FRONTEND_URL", default="http://localhost:5173")
 
-CSRF_TRUSTED_ORIGINS = [FRONTEND_URL]
-CORS_ALLOWED_ORIGINS = [FRONTEND_URL]
-CORS_ALLOW_CREDENTIALS = True
-CORS_ALLOW_HEADERS = list(default_headers) + [
-    "authorization",
-]
+
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -162,9 +157,8 @@ SOCIAL_AUTH_PIPELINE = (
     "social_core.pipeline.social_auth.associate_user",
     "social_core.pipeline.social_auth.load_extra_data",
     "social_core.pipeline.user.user_details",
-    "api.pipeline.link_steam_account",  # <-- Our custom step
+    "api.pipeline.link_steam_account",
 )
-
 
 
 SOCIAL_AUTH_STEAM_API_KEY = config("STEAM_API_KEY")
@@ -174,8 +168,29 @@ LOGIN_REDIRECT_URL = config("LOGIN_REDIRECT_URL")
 SOCIAL_AUTH_LOGIN_REDIRECT_URL = config("SOCIAL_AUTH_LOGIN_REDIRECT_URL")
 
 SESSION_ENGINE = "django.contrib.sessions.backends.db"
-SESSION_COOKIE_SAMESITE = "None"
 SESSION_COOKIE_SECURE = True
+SESSION_COOKIE_SAMESITE = "None"
+CORS_ALLOW_CREDENTIALS = True
+CSRF_COOKIE_SECURE = True
+CSRF_COOKIE_SAMESITE = "None"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
+
+CORS_ALLOWED_ORIGINS = [
+    "https://dotateamfinder.netlify.app",
+    "http://localhost:5173",
+]
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://dotateamfinder.netlify.app",
+    "https://react-team-finder.onrender.com",
+]
+
+CORS_ALLOW_CREDENTIALS = True
+
+SESSION_COOKIE_SECURE = True
+SESSION_COOKIE_SAMESITE = "None"
+
+CSRF_COOKIE_SECURE = True
+CSRF_COOKIE_SAMESITE = "None"

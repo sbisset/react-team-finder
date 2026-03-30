@@ -782,6 +782,8 @@ from .services import get_hero_stats, get_win_loss
 def connect_steam(request):
     request.session["steam_connect_user_id"] = request.user.id
     request.session.modified = True
+    print("saved steam_connect_user_id:", request.user.id)
+    print("session key:", request.session.session_key)
     return Response({"detail": "Ready"})
 
 def steam_success(request):
