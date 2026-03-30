@@ -777,7 +777,6 @@ from rest_framework.response import Response
 
 from .services import get_hero_stats, get_win_loss
 
-
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def connect_steam(request):
@@ -792,3 +791,13 @@ def steam_success(request):
             default="https://dotateamfinder.netlify.app/dashboard?steam=connected"
         )
     )
+
+
+# Optional: Refresh top heroes / stats manually
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def refresh_top_heroes(request):
+    player = request.user.player
+    get_hero_stats(player)
+    get_win_loss(player)
+    return Response({"status": "updated", "top_heroes": player.top_heroes, "wins": player.wins, "losses": player.losses})
