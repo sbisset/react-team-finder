@@ -23,8 +23,6 @@ const Dashboard = () => {
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [searchParams, setSearchParams] = useSearchParams();
 
-  /* ---------------- LOAD TEAMS ---------------- */
-
   const loadTeams = async (showErrorToast = true) => {
     try {
       const memberships = await getTeamMemberships();
@@ -41,8 +39,6 @@ const Dashboard = () => {
     if (!user) return;
     loadTeams(false);
   }, [user]);
-
-  /* ---------------- LOAD DASHBOARD ---------------- */
 
   useEffect(() => {
     if (!user) return;
@@ -63,8 +59,6 @@ const Dashboard = () => {
     loadDashboard();
   }, [user]);
 
-  /* ---------------- STEAM STATUS TOASTS ---------------- */
-
   useEffect(() => {
     const steamStatus = searchParams.get("steam");
 
@@ -82,8 +76,6 @@ const Dashboard = () => {
       setSearchParams(newParams, { replace: true });
     }
   }, [searchParams, setSearchParams]);
-
-  /* ---------------- STEAM CONNECT ---------------- */
 
   const connectSteam = async () => {
     const toastId = toast.loading("Connecting to Steam...");
@@ -115,8 +107,6 @@ const Dashboard = () => {
     }
   };
 
-  /* ---------------- LEAVE TEAM ---------------- */
-
   const handleLeave = async (id) => {
     const toastId = toast.loading("Leaving team...");
 
@@ -129,8 +119,6 @@ const Dashboard = () => {
       toast.error("Failed to leave team", { id: toastId });
     }
   };
-
-  /* ---------------- HELPERS ---------------- */
 
   const combineAndSortRequests = (applications = [], invites = []) => {
     const combined = [
@@ -168,17 +156,17 @@ const Dashboard = () => {
     return (
       <div
         key={`${item.type}-${item.id}`}
-        className="rounded-xl border border-[#2a2718] bg-[#2a2718]/30 p-4 hover:border-red-500/30 hover:bg-[#2a2718]/50 transition"
+        className="rounded-xl border border-[#2a2718] bg-[#2a2718]/30 p-4 transition hover:border-red-500/30 hover:bg-[#2a2718]/50"
       >
         <div className="mb-3 flex items-start justify-between gap-3">
-          <div>
+          <div className="min-w-0">
             <span
               className={`inline-flex rounded-full px-2 py-1 text-[10px] font-bold uppercase tracking-wider ${badgeColor}`}
             >
               {badgeLabel}
             </span>
 
-            <p className="mt-2 text-sm font-bold text-white">
+            <p className="mt-2 break-words text-sm font-bold text-white">
               {item.team}
               {playerRef?.user?.username ? ` • ${playerRef.user.username}` : ""}
             </p>
@@ -186,7 +174,9 @@ const Dashboard = () => {
             <p className="mt-1 text-xs text-slate-400">Role: {item.role}</p>
           </div>
 
-          <span className={`text-xs font-semibold ${STATUS_COLORS[item.status]}`}>
+          <span
+            className={`shrink-0 text-xs font-semibold ${STATUS_COLORS[item.status]}`}
+          >
             {STATUS_LABELS[item.status]}
           </span>
         </div>
@@ -196,7 +186,7 @@ const Dashboard = () => {
             {playerRef.preferred_roles.map((role, idx) => (
               <span
                 key={`${role}-${idx}`}
-                className="rounded-md bg-black/30 px-2 py-1 text-[10px] text-slate-300 border border-white/5"
+                className="rounded-md border border-white/5 bg-black/30 px-2 py-1 text-[10px] text-slate-300"
               >
                 {role}
               </span>
@@ -205,7 +195,9 @@ const Dashboard = () => {
         )}
 
         {item.message && (
-          <p className="mb-3 text-xs italic text-slate-500">"{item.message}"</p>
+          <p className="mb-3 break-words text-xs italic text-slate-500">
+            "{item.message}"
+          </p>
         )}
 
         <div className="flex items-center justify-between gap-3 border-t border-white/5 pt-3">
@@ -215,7 +207,7 @@ const Dashboard = () => {
 
           <button
             onClick={() => openRequestDetail(item)}
-            className="rounded-lg bg-red-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-red-500 transition"
+            className="rounded-lg bg-red-600 px-3 py-1.5 text-xs font-bold text-white transition hover:bg-red-500"
           >
             View
           </button>
@@ -223,8 +215,6 @@ const Dashboard = () => {
       </div>
     );
   };
-
-  /* ---------------- GUARDS ---------------- */
 
   if (!user) return <Navigate to="/login" replace />;
 
@@ -244,41 +234,45 @@ const Dashboard = () => {
   const pendingReceivedCount = receivedRequests.filter((r) => r.status === 1).length;
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 lg:space-y-8">
       {/* HERO */}
-      <section className="relative flex h-52 items-center overflow-hidden rounded-2xl group">
+      <section className="group relative flex min-h-[220px] items-center overflow-hidden rounded-2xl sm:min-h-[240px]">
         <div className="absolute inset-0 z-10 bg-gradient-to-r from-black via-black/75 to-transparent" />
         <div className="absolute inset-0 bg-[url('/images/bg.jpg')] bg-cover bg-center transition-transform duration-700 group-hover:scale-105" />
 
-        <div className="relative z-20 w-full px-10">
-          <div className="flex items-center justify-between flex-wrap gap-4">
-            <h1 className="text-4xl font-black text-white">
-              Welcome back,{" "}
-              <Link to="/profile">
-                <span className="text-red-500 hover:underline">
-                  {user.username}
-                </span>
-              </Link>
-            </h1>
+        <div className="relative z-20 w-full px-4 py-6 sm:px-6 lg:px-10">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+            <div className="min-w-0">
+              <h1 className="text-2xl font-black leading-tight text-white sm:text-3xl lg:text-4xl">
+                Welcome back,{" "}
+                <Link to="/profile">
+                  <span className="break-words text-red-500 hover:underline">
+                    {user.username}
+                  </span>
+                </Link>
+              </h1>
+
+              <p className="mt-2 max-w-lg text-sm text-slate-300 sm:text-base">
+                You have {pendingReceivedCount} pending request
+                {pendingReceivedCount === 1 ? "" : "s"} waiting for attention.
+              </p>
+            </div>
 
             {player?.mmr && (
-              <div className="flex items-center gap-2 rounded-xl border border-[#2a2718] bg-[#1c1a12]/90 px-4 py-2 backdrop-blur-sm">
-                <span className="text-xs uppercase tracking-wider text-slate-400">
-                  MMR
-                </span>
-                <span className="text-lg font-bold text-red-500">
-                  {player.mmr}
-                </span>
+              <div className="w-fit rounded-xl border border-[#2a2718] bg-[#1c1a12]/90 px-4 py-2 backdrop-blur-sm">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs uppercase tracking-wider text-slate-400">
+                    MMR
+                  </span>
+                  <span className="text-lg font-bold text-red-500">
+                    {player.mmr}
+                  </span>
+                </div>
               </div>
             )}
           </div>
 
-          <p className="mt-2 max-w-lg text-slate-300">
-            You have {pendingReceivedCount} pending request
-            {pendingReceivedCount === 1 ? "" : "s"} waiting for attention.
-          </p>
-
-          <div className="mt-5 flex flex-wrap gap-3">
+          <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
             {player?.steam_verified ? (
               <span className="inline-flex items-center rounded-lg px-3 py-2 text-sm font-bold text-emerald-400">
                 ✔ Verified
@@ -286,7 +280,7 @@ const Dashboard = () => {
             ) : (
               <button
                 onClick={connectSteam}
-                className="rounded-lg border border-[#2a2f3a] bg-[#171a21] px-5 py-2 text-sm font-semibold text-white transition hover:bg-[#1f2430]"
+                className="w-full rounded-lg border border-[#2a2f3a] bg-[#171a21] px-5 py-2 text-sm font-semibold text-white transition hover:bg-[#1f2430] sm:w-auto"
               >
                 🟦 Connect Steam
               </button>
@@ -294,7 +288,7 @@ const Dashboard = () => {
 
             <Link
               to="/teams"
-              className="rounded-lg bg-red-600 px-5 py-2 text-sm font-bold text-white transition hover:scale-105"
+              className="w-full rounded-lg bg-red-600 px-5 py-2 text-center text-sm font-bold text-white transition hover:scale-[1.02] sm:w-auto"
             >
               Browse Teams
             </Link>
@@ -302,11 +296,11 @@ const Dashboard = () => {
         </div>
       </section>
 
-      <div className="grid grid-cols-12 gap-8">
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-12 xl:gap-8">
         {/* LEFT */}
-        <div className="col-span-12 space-y-8 xl:col-span-8">
+        <div className="space-y-6 lg:space-y-8 xl:col-span-8">
           {/* STATS */}
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <StatCard title="Wins" value={player?.wins || "—"} />
             <StatCard title="Losses" value={player?.losses || "—"} />
             <StatCard
@@ -319,7 +313,9 @@ const Dashboard = () => {
           {player?.top_heroes?.length > 0 && (
             <section>
               <div className="mb-4 flex items-center justify-between">
-                <h2 className="text-xl font-bold text-white">Signature Heroes</h2>
+                <h2 className="text-lg font-bold text-white sm:text-xl">
+                  Signature Heroes
+                </h2>
               </div>
 
               <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
@@ -334,20 +330,20 @@ const Dashboard = () => {
                       key={`${hero.name?.localized_name || "hero"}-${i}`}
                       className="group overflow-hidden rounded-xl border border-[#2a2718] bg-[#1c1a12] transition hover:border-red-500/40"
                     >
-                      <div className="relative h-28">
+                      <div className="relative h-24 sm:h-28">
                         <img
                           src={hero.icon}
                           alt={hero.name?.localized_name || "Hero"}
-                          className="h-full w-full object-cover transition group-hover:grayscale-0"
+                          className="h-full w-full object-cover"
                         />
                         <div className="absolute bottom-0 w-full bg-gradient-to-t from-black to-transparent p-2">
-                          <p className="text-xs font-bold text-white">
+                          <p className="truncate text-xs font-bold text-white">
                             {hero.name?.localized_name}
                           </p>
                         </div>
                       </div>
 
-                      <div className="flex justify-between p-3 text-[10px] font-bold">
+                      <div className="flex justify-between gap-2 p-3 text-[10px] font-bold">
                         <span className="text-slate-400">{hero.games} games</span>
                         <span className="text-emerald-400">{winRate}% WR</span>
                       </div>
@@ -360,12 +356,12 @@ const Dashboard = () => {
 
           {/* TEAMS */}
           <section>
-            <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-xl font-bold text-white">My Teams</h2>
+            <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <h2 className="text-lg font-bold text-white sm:text-xl">My Teams</h2>
 
               <Link
                 to="/teams/create"
-                className="rounded-lg bg-red-600/10 px-3 py-1.5 text-xs font-bold text-red-500 transition hover:bg-red-600/20"
+                className="w-full rounded-lg bg-red-600/10 px-3 py-2 text-center text-xs font-bold text-red-500 transition hover:bg-red-600/20 sm:w-auto"
               >
                 + Create Team
               </Link>
@@ -374,17 +370,17 @@ const Dashboard = () => {
             {teams.length === 0 ? (
               <p className="text-slate-400">You are not a member of any teams yet.</p>
             ) : (
-              <div className="grid gap-6 md:grid-cols-2">
+              <div className="grid gap-4 md:grid-cols-2 lg:gap-6">
                 {teams.map((team) => (
                   <div
                     key={team.id}
-                    className="relative overflow-hidden rounded-2xl border border-[#2a2718] bg-[#1c1a12] p-5 transition hover:border-red-500/30"
+                    className="relative overflow-hidden rounded-2xl border border-[#2a2718] bg-[#1c1a12] p-4 transition hover:border-red-500/30 sm:p-5"
                   >
                     <div className="absolute -right-16 -top-16 h-32 w-32 rounded-full bg-red-500/5 blur-3xl" />
 
                     <div className="mb-4 flex items-start justify-between gap-3">
-                      <div>
-                        <h3 className="text-lg font-bold text-white">
+                      <div className="min-w-0">
+                        <h3 className="break-words text-base font-bold text-white sm:text-lg">
                           {team.owner_id === user.id ? (
                             <Link
                               to={`/manage/${team.id}`}
@@ -410,14 +406,14 @@ const Dashboard = () => {
                       {team.owner_id !== user.id && (
                         <button
                           onClick={() => handleLeave(team.id)}
-                          className="rounded-lg bg-red-500/10 px-3 py-1 text-xs text-red-400 transition hover:bg-red-500 hover:text-white"
+                          className="shrink-0 rounded-lg bg-red-500/10 px-3 py-1 text-xs text-red-400 transition hover:bg-red-500 hover:text-white"
                         >
                           Leave
                         </button>
                       )}
                     </div>
 
-                    <div className="flex -space-x-2">
+                    <div className="flex flex-wrap gap-2">
                       {team.members.map((member) => {
                         const isMe = member.username === user.username;
 
@@ -451,11 +447,10 @@ const Dashboard = () => {
         </div>
 
         {/* RIGHT */}
-        <div className="col-span-12 space-y-8 xl:col-span-4">
-          {/* RECEIVED */}
-          <div className="rounded-2xl border border-[#2a2718] bg-[#1c1a12] p-6 shadow-xl">
-            <h2 className="mb-6 flex items-center justify-between text-lg font-bold text-white">
-              Received Requests
+        <div className="space-y-6 lg:space-y-8 xl:col-span-4">
+          <div className="rounded-2xl border border-[#2a2718] bg-[#1c1a12] p-4 shadow-xl sm:p-6">
+            <h2 className="mb-6 flex items-center justify-between text-base font-bold text-white sm:text-lg">
+              <span>Received Requests</span>
               <span className="rounded-full bg-red-600 px-2 py-0.5 text-[10px] font-bold text-white">
                 {receivedRequests.length}
               </span>
@@ -470,10 +465,9 @@ const Dashboard = () => {
             </div>
           </div>
 
-          {/* SENT */}
-          <div className="rounded-2xl border border-[#2a2718] bg-[#1c1a12] p-6 shadow-xl">
-            <h2 className="mb-6 flex items-center justify-between text-lg font-bold text-white">
-              Sent Requests
+          <div className="rounded-2xl border border-[#2a2718] bg-[#1c1a12] p-4 shadow-xl sm:p-6">
+            <h2 className="mb-6 flex items-center justify-between text-base font-bold text-white sm:text-lg">
+              <span>Sent Requests</span>
               <span className="rounded-full bg-slate-700 px-2 py-0.5 text-[10px] font-bold text-white">
                 {sentRequests.length}
               </span>
@@ -490,7 +484,6 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* MODAL */}
       {selectedRequest && (
         <RequestDetail
           toggle={() => setSelectedRequest(null)}
@@ -504,11 +497,11 @@ const Dashboard = () => {
 };
 
 const StatCard = ({ title, value }) => (
-  <div className="rounded-2xl border border-[#2a2718] bg-[#1c1a12] p-6 transition hover:border-red-500/30">
+  <div className="rounded-2xl border border-[#2a2718] bg-[#1c1a12] p-4 transition hover:border-red-500/30 sm:p-6">
     <p className="text-xs font-bold uppercase tracking-widest text-slate-400">
       {title}
     </p>
-    <p className="mt-3 text-3xl font-bold text-white">{value}</p>
+    <p className="mt-3 text-2xl font-bold text-white sm:text-3xl">{value}</p>
   </div>
 );
 
