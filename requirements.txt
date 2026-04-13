@@ -28,3 +28,9 @@ social-auth-core==4.8.5
 sqlparse==0.5.5
 tzdata==2025.3
 urllib3==2.6.3
+
+
+
+
+
+/new pc test
